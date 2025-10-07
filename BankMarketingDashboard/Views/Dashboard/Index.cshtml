@@ -1,0 +1,37 @@
+﻿@model List<BankMarketingDashboard.Models.CampaignRecord>
+
+@{
+    ViewData["Title"] = "Dashboard - Prueba de conexión";
+}
+
+<h2>Prueba de conexión con SQL Server</h2>
+<p>Mostrando los primeros 10 registros de CampaignData:</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Edad</th>
+            <th>Ocupación</th>
+            <th>Estado civil</th>
+            <th>Educación</th>
+            <th>¿Suscribió?</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <td>@record.Age</td>
+                <td>@record.Job</td>
+                <td>@record.Marital</td>
+                <td>@record.Education</td>
+                <td>@(record.Y == "yes" ? "✅ Sí" : "❌ No")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">No se encontraron registros.</div>
+}

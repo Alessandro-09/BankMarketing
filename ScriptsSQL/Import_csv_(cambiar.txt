@@ -1,0 +1,9 @@
+BULK INSERT CampaignData
+FROM 'C:\...\bank-additional-full.csv' -- CAMBIAR RUTA 
+WITH (
+    FORMAT = 'CSV',
+    FIRSTROW = 2,          
+    FIELDTERMINATOR = ';', 
+    ROWTERMINATOR = '\n',
+    TABLOCK
+);

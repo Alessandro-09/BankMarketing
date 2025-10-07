@@ -1,0 +1,26 @@
+USE BankMarketingDB;
+GO
+
+CREATE TABLE CampaignData (
+    age INT NOT NULL,
+    job NVARCHAR(50) NOT NULL,
+    marital NVARCHAR(50) NOT NULL,
+    education NVARCHAR(50) NOT NULL,
+    [default] NVARCHAR(10) NOT NULL,
+    housing NVARCHAR(10) NOT NULL,
+    loan NVARCHAR(10) NOT NULL,
+    contact NVARCHAR(20) NOT NULL,
+    [month] NVARCHAR(10) NOT NULL,
+    day_of_week NVARCHAR(10) NOT NULL,
+    duration INT NOT NULL,
+    campaign INT NOT NULL,
+    pdays INT NOT NULL,
+    previous INT NOT NULL,
+    poutcome NVARCHAR(20) NOT NULL,
+    emp_var_rate FLOAT NOT NULL,
+    cons_price_idx FLOAT NOT NULL,
+    cons_conf_idx FLOAT NOT NULL,
+    euribor3m FLOAT NOT NULL,
+    nr_employed FLOAT NOT NULL,
+    y NVARCHAR(5) NOT NULL
+);
