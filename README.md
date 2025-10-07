@@ -7,6 +7,16 @@ Dashboard para análisis de campañas bancarias (SRS v1.5).
 - SQL Server 2022 Developer
 - Visual Studio 2022
 
+Paquetes NuGet necesarios
+En Visual Studio:
+
+Herramientas → Administrador de paquetes NuGet → Consola del Administrador de paquetes
+Ejecutar:
+Install-Package Microsoft.EntityFrameworkCore.SqlServer
+Install-Package Microsoft.EntityFrameworkCore.Tools
+Install-Package CsvHelper
+Install-Package ClosedXML
+
 ## Instrucciones de instalación
 
 1. Clonar el repositorio
