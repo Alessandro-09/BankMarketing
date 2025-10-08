@@ -950,3 +950,5 @@ C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\obj\Debug\n
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\obj\Debug\net9.0\BankMarketingDashboard.pdb
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\obj\Debug\net9.0\BankMarketingDashboard.genruntimeconfig.cache
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\obj\Debug\net9.0\ref\BankMarketingDashboard.dll
+C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\obj\Debug\net9.0\BankMarketingDashboard.sourcelink.json
+C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\obj\Debug\net9.0\compressed\a3xvovjp95-wtby2q7ii8.gz

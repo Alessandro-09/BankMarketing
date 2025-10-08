@@ -1,50 +1,356 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BankMarketingDashboard</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/BankMarketingDashboard.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - BankMarketing Dashboard</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/dashboard.css" rel="stylesheet" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BankMarketingDashboard</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <div class="wrapper">
+        <!-- Barra lateral fija -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h4 class="text-white">Dashdark X</h4>
+            </div>
+
+            <!-- Menú de navegación -->
+            <div class="nav-menu">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="/Dashboard">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/InteractiveTable">Interactive Table</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/DataUpload">Data Upload</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Separador -->
+            <div class="separator"></div>
+
+            <!-- Filtros -->
+            <div class="filters-section">
+                <h5>Filtros</h5>
+
+                <!-- === SLIDERS === -->
+                <div class="custom-slider" data-min="17" data-max="98" data-value="50" id="ageSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Age</span>
+                        <span class="slider-value" id="ageValue">50</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="0" data-max="4918" data-value="1000" id="durationSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Call duration</span>
+                        <span class="slider-value" id="durationValue">1000 s</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="1" data-max="56" data-value="10" id="campaignsSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Number of campaigns</span>
+                        <span class="slider-value" id="campaignsValue">10</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="0" data-max="999" data-value="100" id="pdaysSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Days since last contact</span>
+                        <span class="slider-value" id="pdaysValue">100</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="0" data-max="7" data-value="0" id="previousSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Previous contacts</span>
+                        <span class="slider-value" id="previousValue">0</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="-3.4" data-max="1.4" data-value="0" id="empVarRateSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Employment variation rate</span>
+                        <span class="slider-value" id="empVarRateValue">0.0</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="92.201" data-max="94.767" data-value="93.5" id="consPriceIdxSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Consumer price index</span>
+                        <span class="slider-value" id="consPriceIdxValue">93.5</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="-50.8" data-max="-26.9" data-value="-40" id="consConfIdxSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Consumer confidence index</span>
+                        <span class="slider-value" id="consConfIdxValue">-40.0</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="0.634" data-max="5.045" data-value="2.0" id="euribor3mSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Euribor 3-month rate</span>
+                        <span class="slider-value" id="euribor3mValue">2.0</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <div class="custom-slider" data-min="4963.6" data-max="5228.1" data-value="5100" id="nrEmployedSliderContainer">
+                    <div class="slider-header">
+                        <span class="slider-label">Number of employees</span>
+                        <span class="slider-value" id="nrEmployedValue">5100</span>
+                    </div>
+                    <div class="slider-track">
+                        <div class="slider-fill"></div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+
+                <!-- === CHECKBOXES === -->
+                <div class="filter-group">
+                    <label class="filter-title">Occupation</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="admin." checked> Admin</label>
+                        <label><input type="checkbox" value="blue-collar"> Blue-collar</label>
+                        <label><input type="checkbox" value="entrepreneur"> Entrepreneur</label>
+                        <label><input type="checkbox" value="housemaid"> Housemaid</label>
+                        <label><input type="checkbox" value="management"> Management</label>
+                        <label><input type="checkbox" value="retired"> Retired</label>
+                        <label><input type="checkbox" value="self-employed"> Self-employed</label>
+                        <label><input type="checkbox" value="services"> Services</label>
+                        <label><input type="checkbox" value="student"> Student</label>
+                        <label><input type="checkbox" value="technician"> Technician</label>
+                        <label><input type="checkbox" value="unemployed"> Unemployed</label>
+                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Civil Status</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="divorced"> Divorced</label>
+                        <label><input type="checkbox" value="married"> Married</label>
+                        <label><input type="checkbox" value="single" checked> Single</label>
+                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Educational Level</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="basic.4y"> Basic 4y</label>
+                        <label><input type="checkbox" value="basic.6y"> Basic 6y</label>
+                        <label><input type="checkbox" value="basic.9y"> Basic 9y</label>
+                        <label><input type="checkbox" value="high.school"> High school</label>
+                        <label><input type="checkbox" value="illiterate"> Illiterate</label>
+                        <label><input type="checkbox" value="professional.course"> Professional course</label>
+                        <label><input type="checkbox" value="university.degree" checked> University degree</label>
+                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Credit in default?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="no" checked> No</label>
+                        <label><input type="checkbox" value="yes"> Yes</label>
+                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Housing loan?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="no" checked> No</label>
+                        <label><input type="checkbox" value="yes"> Yes</label>
+                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Personal loan?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="no" checked> No</label>
+                        <label><input type="checkbox" value="yes"> Yes</label>
+                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Contact channel</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="cellular" checked> Cellular</label>
+                        <label><input type="checkbox" value="telephone"> Telephone</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Last contact month</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="jan"> Jan</label>
+                        <label><input type="checkbox" value="feb"> Feb</label>
+                        <label><input type="checkbox" value="mar"> Mar</label>
+                        <label><input type="checkbox" value="apr"> Apr</label>
+                        <label><input type="checkbox" value="may"> May</label>
+                        <label><input type="checkbox" value="jun"> Jun</label>
+                        <label><input type="checkbox" value="jul"> Jul</label>
+                        <label><input type="checkbox" value="aug"> Aug</label>
+                        <label><input type="checkbox" value="sep"> Sep</label>
+                        <label><input type="checkbox" value="oct"> Oct</label>
+                        <label><input type="checkbox" value="nov"> Nov</label>
+                        <label><input type="checkbox" value="dec"> Dec</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Day of week</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="mon"> Mon</label>
+                        <label><input type="checkbox" value="tue"> Tue</label>
+                        <label><input type="checkbox" value="wed"> Wed</label>
+                        <label><input type="checkbox" value="thu"> Thu</label>
+                        <label><input type="checkbox" value="fri"> Fri</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Previous campaign outcome</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="failure"> Failure</label>
+                        <label><input type="checkbox" value="nonexistent"> Nonexistent</label>
+                        <label><input type="checkbox" value="success"> Success</label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-title">Subscribed?</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="no" checked> No</label>
+                        <label><input type="checkbox" value="yes"> Yes</label>
+                    </div>
                 </div>
             </div>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+        <!-- Contenido principal -->
+        <main class="main-content">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - BankMarketingDashboard - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Script para sliders con relleno progresivo -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sliders = [
+                { id: 'ageSliderContainer', min: 17, max: 98, value: 50, decimals: 0 },
+                { id: 'durationSliderContainer', min: 0, max: 4918, value: 1000, decimals: 0 },
+                { id: 'campaignsSliderContainer', min: 1, max: 56, value: 10, decimals: 0 },
+                { id: 'pdaysSliderContainer', min: 0, max: 999, value: 100, decimals: 0 },
+                { id: 'previousSliderContainer', min: 0, max: 7, value: 0, decimals: 0 },
+                { id: 'empVarRateSliderContainer', min: -3.4, max: 1.4, value: 0, decimals: 1 },
+                { id: 'consPriceIdxSliderContainer', min: 92.201, max: 94.767, value: 93.5, decimals: 1 },
+                { id: 'consConfIdxSliderContainer', min: -50.8, max: -26.9, value: -40, decimals: 1 },
+                { id: 'euribor3mSliderContainer', min: 0.634, max: 5.045, value: 2.0, decimals: 1 },
+                { id: 'nrEmployedSliderContainer', min: 4963.6, max: 5228.1, value: 5100, decimals: 0 }
+            ];
+
+            sliders.forEach(config => {
+                const container = document.getElementById(config.id);
+                if (!container) return;
+
+                const fill = container.querySelector('.slider-fill');
+                const thumb = container.querySelector('.slider-thumb');
+                const valueSpan = container.querySelector('.slider-value');
+
+                function updateSlider(value) {
+                    const percent = ((value - config.min) / (config.max - config.min)) * 100;
+                    fill.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+                    thumb.style.left = `${Math.max(0, Math.min(100, percent))}%`;
+
+                    if (valueSpan) {
+                        const formatted = config.decimals > 0
+                            ? parseFloat(value).toFixed(config.decimals)
+                            : Math.round(value);
+                        valueSpan.textContent = config.id.includes('duration')
+                            ? `${formatted} s`
+                            : formatted;
+                    }
+                }
+
+                updateSlider(config.value);
+
+                let isDragging = false;
+                thumb.addEventListener('mousedown', () => isDragging = true);
+                document.addEventListener('mouseup', () => isDragging = false);
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const rect = container.querySelector('.slider-track').getBoundingClientRect();
+                    let percent = (e.clientX - rect.left) / rect.width;
+                    percent = Math.max(0, Math.min(1, percent));
+                    const value = config.min + percent * (config.max - config.min);
+                    updateSlider(value);
+                });
+
+                thumb.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    isDragging = true;
+                });
+                document.addEventListener('touchend', () => isDragging = false);
+                document.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    const rect = container.querySelector('.slider-track').getBoundingClientRect();
+                    let percent = (e.touches[0].clientX - rect.left) / rect.width;
+                    percent = Math.max(0, Math.min(1, percent));
+                    const value = config.min + percent * (config.max - config.min);
+                    updateSlider(value);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

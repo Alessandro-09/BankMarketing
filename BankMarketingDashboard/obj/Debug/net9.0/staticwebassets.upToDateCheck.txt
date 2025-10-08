@@ -61,6 +61,7 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\css\dashboard.css
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\css\site.css
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\favicon.ico
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\js\site.js
@@ -123,3 +124,4 @@ C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\lib
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\lib\jquery\dist\jquery.slim.min.js
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\lib\jquery\dist\jquery.slim.min.map
 C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\lib\jquery\LICENSE.txt
+C:\Users\aless\Documents\Github\BankMarketing\BankMarketingDashboard\wwwroot\css\dashboard.css
