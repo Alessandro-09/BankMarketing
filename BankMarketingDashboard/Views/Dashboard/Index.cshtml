@@ -1,47 +1,99 @@
-﻿@model List<BankMarketingDashboard.Models.CampaignRecord>
-
-@{
+﻿@{
     ViewData["Title"] = "Reports";
+
+    // KPIs
+    var totalContacts = ViewBag.TotalContacts as int? ?? 0;
+    var conversionRate = ViewBag.ConversionRate as double? ?? 0;
+    var avgDuration = ViewBag.AvgDuration as double? ?? 0;
+    var successfulCalls = ViewBag.SuccessfulCalls as int? ?? 0;
+
+    // Datos para gráficos (aseguramos que nunca sean null)
+    var maritalData = ViewBag.MaritalData as List<dynamic> ?? new List<dynamic>();
+    var jobData = ViewBag.JobData as List<dynamic> ?? new List<dynamic>();
+    var educationData = ViewBag.EducationData as List<dynamic> ?? new List<dynamic>();
+    var contactData = ViewBag.ContactData as List<dynamic> ?? new List<dynamic>();
+    var ageData = ViewBag.AgeData as List<dynamic> ?? new List<dynamic>();
+    var conversionByAge = ViewBag.ConversionByAge as List<dynamic> ?? new List<dynamic>();
 }
 
 <div class="dashboard-container">
     <h2>Marketing Campaign Dashboard</h2>
 
-    <div class="row">
-        <!-- Área de contenido (derecha) -->
-        <div class="col-md-12">
-            <!-- KPIs -->
-            <div class="kpi-cards mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h6>Total Contacts</h6>
-                        <p class="fs-4">41,188</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <h6>Conversion Rate</h6>
-                        <p class="fs-4">11.26%</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <h6>Avg. Duration</h6>
-                        <p class="fs-4">258s</p>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <h6>Successful Calls</h6>
-                        <p class="fs-4">4,640</p>
-                    </div>
-                </div>
+    <!-- KPIs -->
+    <div class="kpi-cards mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6>Total Contacts</h6>
+                <p class="fs-4">@totalContacts.ToString("N0")</p>
             </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h6>Conversion Rate</h6>
+                <p class="fs-4">@conversionRate.ToString("F2")%</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h6>Avg. Duration</h6>
+                <p class="fs-4">@avgDuration.ToString("F0") s</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h6>Successful Calls</h6>
+                <p class="fs-4">@successfulCalls.ToString("N0")</p>
+            </div>
+        </div>
+    </div>
 
-            <!-- Gráfico -->
+    <!-- Gráficos -->
+    <div class="row">
+        <!-- Civil Status (donut) -->
+        <div class="col-md-6 mb-4">
             <div class="chart-container">
                 <h5 class="chart-title">Civil Status Distribution</h5>
-                <canvas id="civilStatusChart" width="400" height="200"></canvas>
+                <canvas id="maritalChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Occupation (barras) -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Occupation Distribution</h5>
+                <canvas id="jobChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Education (barras horizontales) -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Education Level</h5>
+                <canvas id="educationChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Contact Channel -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Contact Channel</h5>
+                <canvas id="contactChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Age Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Age Distribution</h5>
+                <canvas id="ageChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Conversion by Age -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Conversion Rate by Age Group</h5>
+                <canvas id="conversionAgeChart"></canvas>
             </div>
         </div>
     </div>
@@ -50,35 +102,89 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Ejemplo de gráfico
-        const ctx = document.getElementById('civilStatusChart').getContext('2d');
-        new Chart(ctx, {
+        // === Helper: convertir datos dinámicos a arrays seguros ===
+        const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label).ToArray()));
+        const maritalValues = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Value).ToArray()));
+
+        const jobLabels = @Html.Raw(Json.Serialize(jobData.Select(j => j.Label).ToArray()));
+        const jobValues = @Html.Raw(Json.Serialize(jobData.Select(j => j.Value).ToArray()));
+
+        const educationLabels = @Html.Raw(Json.Serialize(educationData.Select(e => e.Label).ToArray()));
+        const educationValues = @Html.Raw(Json.Serialize(educationData.Select(e => e.Value).ToArray()));
+
+        const contactLabels = @Html.Raw(Json.Serialize(contactData.Select(c => c.Label).ToArray()));
+        const contactValues = @Html.Raw(Json.Serialize(contactData.Select(c => c.Value).ToArray()));
+
+        const ageLabels = @Html.Raw(Json.Serialize(ageData.Select(a => a.Label).ToArray()));
+        const ageValues = @Html.Raw(Json.Serialize(ageData.Select(a => a.Value).ToArray()));
+
+        const conversionAgeLabels = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Label).ToArray()));
+        const conversionAgeValues = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Value).ToArray()));
+
+        // === Civil Status (donut) ===
+        new Chart(document.getElementById('maritalChart'), {
             type: 'doughnut',
-            data: {
-                labels: ['Married', 'Single', 'Divorced'],
-                datasets: [{
-                    data: [60, 30, 10],
-                    backgroundColor: ['#CB3CFF', '#4e73df', '#1cc88a']
-                }]
-            },
+             { labels: maritalLabels, datasets: [{ data: maritalValues, backgroundColor: ['#CB3CFF', '#4e73df', '#1cc88a', '#e74a3b'] }] },
+            options: { responsive: true, plugins: { legend: { labels: { color: 'white' } } } }
+        });
+
+        // === Occupation (barras) ===
+        new Chart(document.getElementById('jobChart'), {
+            type: 'bar',
+             { labels: jobLabels, datasets: [{ label: 'Count', data: jobValues, backgroundColor: '#CB3CFF' }] },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
-                        }
-                    }
-                }
+                scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+                plugins: { legend: { display: false } }
             }
         });
 
-        // Actualización en tiempo real de sliders
-        document.getElementById('ageFilter').addEventListener('input', function() {
-            document.getElementById('ageValue').textContent = this.value;
+        // === Education (barras horizontales) ===
+        new Chart(document.getElementById('educationChart'), {
+            type: 'bar',
+             { labels: educationLabels, datasets: [{ label: 'Count', data: educationValues, backgroundColor: '#4e73df' }] },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                scales: { x: { beginAtZero: true, ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } },
+                plugins: { legend: { display: false } }
+            }
         });
-        document.getElementById('durationFilter').addEventListener('input', function() {
-            document.getElementById('durationValue').textContent = this.value;
+
+        // === Contact Channel ===
+        new Chart(document.getElementById('contactChart'), {
+            type: 'bar',
+            data: { labels: contactLabels, datasets: [{ label: 'Count', data: contactValues, backgroundColor: ['#CB3CFF', '#1cc88a'] }] },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // === Age Distribution ===
+        new Chart(document.getElementById('ageChart'), {
+            type: 'bar',
+             { labels: ageLabels, datasets: [{ label: 'Count', data: ageValues, backgroundColor: '#e74a3b' }] },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // === Conversion by Age ===
+        new Chart(document.getElementById('conversionAgeChart'), {
+            type: 'bar',
+             { labels: conversionAgeLabels, datasets: [{ label: 'Conversion Rate (%)', data: conversionAgeValues, backgroundColor: '#1cc88a' }] },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: 'white', callback: v => v + '%' } },
+                    x: { ticks: { color: 'white' } }
+                },
+                plugins: { legend: { display: false } }
+            }
         });
     </script>
 }

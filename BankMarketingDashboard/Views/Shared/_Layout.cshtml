@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - BankMarketing Dashboard</title>
     <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/dashboard.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="wrapper">
@@ -19,13 +20,16 @@
             <div class="nav-menu">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link text-white active" href="/Dashboard">Reports</a>
+                        <a class="nav-link text-white @(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" ? "active" : "")"
+                           href="/Dashboard">Reports</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="/InteractiveTable">Interactive Table</a>
+                        <a class="nav-link text-white @(ViewContext.RouteData.Values["controller"].ToString() == "InteractiveTable" ? "active" : "")"
+                           href="/InteractiveTable">Interactive Table</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="/DataUpload">Data Upload</a>
+                        <a class="nav-link text-white @(ViewContext.RouteData.Values["controller"].ToString() == "DataUpload" ? "active" : "")"
+                           href="/DataUpload">Data Upload</a>
                     </li>
                 </ul>
             </div>
