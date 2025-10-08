@@ -7,7 +7,7 @@
     var avgDuration = ViewBag.AvgDuration as double? ?? 0;
     var successfulCalls = ViewBag.SuccessfulCalls as int? ?? 0;
 
-    // Datos para gráficos (aseguramos que nunca sean null)
+    // Datos para gráficos no null
     var maritalData = ViewBag.MaritalData as List<dynamic> ?? new List<dynamic>();
     var jobData = ViewBag.JobData as List<dynamic> ?? new List<dynamic>();
     var educationData = ViewBag.EducationData as List<dynamic> ?? new List<dynamic>();
@@ -124,17 +124,40 @@
         // === Civil Status (donut) ===
         new Chart(document.getElementById('maritalChart'), {
             type: 'doughnut',
-             { labels: maritalLabels, datasets: [{ data: maritalValues, backgroundColor: ['#CB3CFF', '#4e73df', '#1cc88a', '#e74a3b'] }] },
-            options: { responsive: true, plugins: { legend: { labels: { color: 'white' } } } }
+            data: { 
+                labels: maritalLabels,
+                datasets: [{
+                    data: maritalValues,
+                    backgroundColor: ['#CB3CFF', '#4e73df', '#1cc88a', '#e74a3b']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                }
+            }
         });
 
         // === Occupation (barras) ===
         new Chart(document.getElementById('jobChart'), {
             type: 'bar',
-             { labels: jobLabels, datasets: [{ label: 'Count', data: jobValues, backgroundColor: '#CB3CFF' }] },
+            data: { 
+                labels: jobLabels,
+                datasets: [{
+                    label: 'Count',
+                    data: jobValues,
+                    backgroundColor: '#CB3CFF'
+                }]
+            },
             options: {
                 responsive: true,
-                scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' } }
+                },
                 plugins: { legend: { display: false } }
             }
         });
@@ -142,11 +165,21 @@
         // === Education (barras horizontales) ===
         new Chart(document.getElementById('educationChart'), {
             type: 'bar',
-             { labels: educationLabels, datasets: [{ label: 'Count', data: educationValues, backgroundColor: '#4e73df' }] },
+            data: { // 
+                labels: educationLabels,
+                datasets: [{
+                    label: 'Count',
+                    data: educationValues,
+                    backgroundColor: '#4e73df'
+                }]
+            },
             options: {
                 responsive: true,
                 indexAxis: 'y',
-                scales: { x: { beginAtZero: true, ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { color: 'white' } },
+                    y: { ticks: { color: 'white' } }
+                },
                 plugins: { legend: { display: false } }
             }
         });
@@ -154,10 +187,20 @@
         // === Contact Channel ===
         new Chart(document.getElementById('contactChart'), {
             type: 'bar',
-            data: { labels: contactLabels, datasets: [{ label: 'Count', data: contactValues, backgroundColor: ['#CB3CFF', '#1cc88a'] }] },
+            data: { 
+                labels: contactLabels,
+                datasets: [{
+                    label: 'Count',
+                    data: contactValues,
+                    backgroundColor: ['#CB3CFF', '#1cc88a']
+                }]
+            },
             options: {
                 responsive: true,
-                scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' } }
+                },
                 plugins: { legend: { display: false } }
             }
         });
@@ -165,10 +208,20 @@
         // === Age Distribution ===
         new Chart(document.getElementById('ageChart'), {
             type: 'bar',
-             { labels: ageLabels, datasets: [{ label: 'Count', data: ageValues, backgroundColor: '#e74a3b' }] },
+            data: { 
+                labels: ageLabels,
+                datasets: [{
+                    label: 'Count',
+                    data: ageValues,
+                    backgroundColor: '#e74a3b'
+                }]
+            },
             options: {
                 responsive: true,
-                scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: 'white' } },
+                    x: { ticks: { color: 'white' } }
+                },
                 plugins: { legend: { display: false } }
             }
         });
@@ -176,11 +229,24 @@
         // === Conversion by Age ===
         new Chart(document.getElementById('conversionAgeChart'), {
             type: 'bar',
-             { labels: conversionAgeLabels, datasets: [{ label: 'Conversion Rate (%)', data: conversionAgeValues, backgroundColor: '#1cc88a' }] },
+            data: { 
+                labels: conversionAgeLabels,
+                datasets: [{
+                    label: 'Conversion Rate (%)',
+                    data: conversionAgeValues,
+                    backgroundColor: '#1cc88a'
+                }]
+            },
             options: {
                 responsive: true,
                 scales: {
-                    y: { beginAtZero: true, ticks: { color: 'white', callback: v => v + '%' } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'white',
+                            callback: v => v + '%'
+                        }
+                    },
                     x: { ticks: { color: 'white' } }
                 },
                 plugins: { legend: { display: false } }

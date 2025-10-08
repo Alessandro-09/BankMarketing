@@ -203,3 +203,11 @@ body {
     overflow-y: auto;
     background-color: #081028;
 }
+
+.chart-container {
+    background-color: #121228;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    min-height: 300px; 
+}

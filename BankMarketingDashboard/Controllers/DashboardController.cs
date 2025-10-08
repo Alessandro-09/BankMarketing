@@ -16,13 +16,14 @@ namespace BankMarketingDashboard.Controllers
 
         public IActionResult Index()
         {
-            // === KPIs (Anexo C) ===
+            // === KPIs ===
             var totalRecords = _context.CampaignData.Count();
+            Console.WriteLine($"Total records: {totalRecords}"); 
             var convertedCount = _context.CampaignData.Count(r => r.Y == "yes");
             var conversionRate = totalRecords > 0 ? (convertedCount * 100.0 / totalRecords) : 0;
             var avgDuration = _context.CampaignData.Average(r => r.Duration);
 
-            // === Datos para gráficos (Anexo B) ===
+            // === Datos para gráficos ===
             // Civil Status (donut)
             var maritalData = _context.CampaignData
                 .GroupBy(r => r.Marital)
