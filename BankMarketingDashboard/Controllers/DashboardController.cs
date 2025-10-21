@@ -18,37 +18,31 @@ namespace BankMarketingDashboard.Controllers
         {
             // === KPIs ===
             var totalRecords = _context.CampaignData.Count();
-            Console.WriteLine($"Total records: {totalRecords}"); 
             var convertedCount = _context.CampaignData.Count(r => r.Y == "yes");
             var conversionRate = totalRecords > 0 ? (convertedCount * 100.0 / totalRecords) : 0;
-            var avgDuration = _context.CampaignData.Average(r => r.Duration);
+            var avgDuration = _context.CampaignData.Any() ? _context.CampaignData.Average(r => r.Duration) : 0;
 
-            // === Datos para gráficos ===
-            // Civil Status (donut)
+            // === Datos para gráficos usando ChartPoint (tipo concreto) ===
             var maritalData = _context.CampaignData
                 .GroupBy(r => r.Marital)
-                .Select(g => new { Label = g.Key, Value = g.Count() })
+                .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
                 .ToList();
 
-            // Occupation (barras)
             var jobData = _context.CampaignData
                 .GroupBy(r => r.Job)
-                .Select(g => new { Label = g.Key, Value = g.Count() })
+                .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
                 .ToList();
 
-            // Education (barras ordenadas)
             var educationData = _context.CampaignData
                 .GroupBy(r => r.Education)
-                .Select(g => new { Label = g.Key, Value = g.Count() })
+                .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
                 .ToList();
 
-            // Contact channel (barras comparativas)
             var contactData = _context.CampaignData
                 .GroupBy(r => r.Contact)
-                .Select(g => new { Label = g.Key, Value = g.Count() })
+                .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
                 .ToList();
 
-            // Age distribution (histograma simplificado: rangos)
             var ageRanges = new[]
             {
                 new { Min = 17, Max = 30, Label = "17-30" },
@@ -56,19 +50,18 @@ namespace BankMarketingDashboard.Controllers
                 new { Min = 46, Max = 60, Label = "46-60" },
                 new { Min = 61, Max = 98, Label = "61-98" }
             };
-            var ageData = ageRanges.Select(range => new
+            var ageData = ageRanges.Select(range => new ChartPoint
             {
-                range.Label,
+                Label = range.Label,
                 Value = _context.CampaignData.Count(r => r.Age >= range.Min && r.Age <= range.Max)
             }).ToList();
 
-            // Conversion rate by age range
-            var conversionByAge = ageRanges.Select(range => new
+            var conversionByAge = ageRanges.Select(range =>
             {
-                range.Label,
-                Value = _context.CampaignData
-                    .Where(r => r.Age >= range.Min && r.Age <= range.Max && r.Y == "yes")
-                    .Count() * 100.0 / _context.CampaignData.Count(r => r.Age >= range.Min && r.Age <= range.Max)
+                var totalInRange = _context.CampaignData.Count(r => r.Age >= range.Min && r.Age <= range.Max);
+                var convertedInRange = _context.CampaignData.Count(r => r.Age >= range.Min && r.Age <= range.Max && r.Y == "yes");
+                var value = totalInRange > 0 ? (convertedInRange * 100.0 / totalInRange) : 0.0;
+                return new ChartPoint { Label = range.Label, Value = Math.Round(value, 2) };
             }).ToList();
 
             // Pasar todo a la vista

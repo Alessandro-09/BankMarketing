@@ -1,25 +1,26 @@
-﻿@{
+﻿@using BankMarketingDashboard.Models
+@{
     ViewData["Title"] = "Reports";
 
-    // KPIs
+    // Métricas principales recibidas desde el controlador
     var totalContacts = ViewBag.TotalContacts as int? ?? 0;
     var conversionRate = ViewBag.ConversionRate as double? ?? 0;
     var avgDuration = ViewBag.AvgDuration as double? ?? 0;
     var successfulCalls = ViewBag.SuccessfulCalls as int? ?? 0;
 
-    // Datos para gráficos no null
-    var maritalData = ViewBag.MaritalData as List<dynamic> ?? new List<dynamic>();
-    var jobData = ViewBag.JobData as List<dynamic> ?? new List<dynamic>();
-    var educationData = ViewBag.EducationData as List<dynamic> ?? new List<dynamic>();
-    var contactData = ViewBag.ContactData as List<dynamic> ?? new List<dynamic>();
-    var ageData = ViewBag.AgeData as List<dynamic> ?? new List<dynamic>();
-    var conversionByAge = ViewBag.ConversionByAge as List<dynamic> ?? new List<dynamic>();
+    // Datos preparados para los gráficos (lista de ChartPoint)
+    var maritalData = ViewBag.MaritalData as List<ChartPoint> ?? new List<ChartPoint>();
+    var jobData = ViewBag.JobData as List<ChartPoint> ?? new List<ChartPoint>();
+    var educationData = ViewBag.EducationData as List<ChartPoint> ?? new List<ChartPoint>();
+    var contactData = ViewBag.ContactData as List<ChartPoint> ?? new List<ChartPoint>();
+    var ageData = ViewBag.AgeData as List<ChartPoint> ?? new List<ChartPoint>();
+    var conversionByAge = ViewBag.ConversionByAge as List<ChartPoint> ?? new List<ChartPoint>();
 }
 
 <div class="dashboard-container">
     <h2>Marketing Campaign Dashboard</h2>
 
-    <!-- KPIs -->
+    <!-- Tarjetas con métricas KPI's -->
     <div class="kpi-cards mb-4">
         <div class="card">
             <div class="card-body">
@@ -47,7 +48,7 @@
         </div>
     </div>
 
-    <!-- Gráficos -->
+    <!-- Sección de gráficos -->
     <div class="row">
         <!-- Civil Status (donut) -->
         <div class="col-md-6 mb-4">
@@ -102,17 +103,17 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // === Helper: convertir datos dinámicos a arrays seguros ===
-        const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label).ToArray()));
+        // Serialización de los datos para uso en el cliente
+        const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label ?? "Unknown").ToArray()));
         const maritalValues = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Value).ToArray()));
 
-        const jobLabels = @Html.Raw(Json.Serialize(jobData.Select(j => j.Label).ToArray()));
+        const jobLabels = @Html.Raw(Json.Serialize(jobData.Select(j => j.Label ?? "Unknown").ToArray()));
         const jobValues = @Html.Raw(Json.Serialize(jobData.Select(j => j.Value).ToArray()));
 
-        const educationLabels = @Html.Raw(Json.Serialize(educationData.Select(e => e.Label).ToArray()));
+        const educationLabels = @Html.Raw(Json.Serialize(educationData.Select(e => e.Label ?? "Unknown").ToArray()));
         const educationValues = @Html.Raw(Json.Serialize(educationData.Select(e => e.Value).ToArray()));
 
-        const contactLabels = @Html.Raw(Json.Serialize(contactData.Select(c => c.Label).ToArray()));
+        const contactLabels = @Html.Raw(Json.Serialize(contactData.Select(c => c.Label ?? "Unknown").ToArray()));
         const contactValues = @Html.Raw(Json.Serialize(contactData.Select(c => c.Value).ToArray()));
 
         const ageLabels = @Html.Raw(Json.Serialize(ageData.Select(a => a.Label).ToArray()));
@@ -121,136 +122,84 @@
         const conversionAgeLabels = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Label).ToArray()));
         const conversionAgeValues = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Value).ToArray()));
 
-        // === Civil Status (donut) ===
-        new Chart(document.getElementById('maritalChart'), {
-            type: 'doughnut',
-            data: { 
-                labels: maritalLabels,
-                datasets: [{
-                    data: maritalValues,
-                    backgroundColor: ['#CB3CFF', '#4e73df', '#1cc88a', '#e74a3b']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: { color: 'white' }
-                    }
+        // Función auxiliar: convierte valores a números válidos
+        function safeNumbers(arr) {
+            if (!Array.isArray(arr)) return [];
+            return arr.map(v => {
+                const n = Number(v);
+                return Number.isFinite(n) ? n : 0;
+            });
+        }
+
+        // Crea un gráfico sólo si las entradas son coherentes
+        function createChartIfValid(canvasId, type, labels, rawValues, cfgOptions, background) {
+            try {
+                if (!labels || !Array.isArray(labels) || labels.length === 0) {
+                    console.warn(`Skipping chart ${canvasId}: no labels`);
+                    return;
                 }
+                if (!rawValues || !Array.isArray(rawValues) || rawValues.length === 0) {
+                    console.warn(`Skipping chart ${canvasId}: no values`);
+                    return;
+                }
+                const values = safeNumbers(rawValues);
+                if (labels.length !== values.length) {
+                    console.warn(`Skipping chart ${canvasId}: labels/values length mismatch`, labels.length, values.length);
+                    return;
+                }
+                const ctx = document.getElementById(canvasId);
+                if (!ctx) {
+                    console.warn(`Canvas ${canvasId} not found`);
+                    return;
+                }
+                new Chart(ctx, {
+                    type,
+                    data: { labels, datasets: [{ data: values, backgroundColor: background || '#CB3CFF' }] },
+                    options: cfgOptions || { responsive: true }
+                });
+            } catch (ex) {
+                console.error(`Error creating chart ${canvasId}`, ex);
             }
-        });
+        }
 
-        // === Occupation (barras) ===
-        new Chart(document.getElementById('jobChart'), {
-            type: 'bar',
-            data: { 
-                labels: jobLabels,
-                datasets: [{
-                    label: 'Count',
-                    data: jobValues,
-                    backgroundColor: '#CB3CFF'
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: 'white' } },
-                    x: { ticks: { color: 'white' } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
+        // Inicialización de gráficos con opciones visuales
+        createChartIfValid('maritalChart', 'doughnut', maritalLabels, maritalValues, {
+            responsive: true,
+            plugins: { legend: { labels: { color: 'white' } } }
+        }, ['#CB3CFF', '#4e73df', '#1cc88a', '#e74a3b']);
 
-        // === Education (barras horizontales) ===
-        new Chart(document.getElementById('educationChart'), {
-            type: 'bar',
-            data: { // 
-                labels: educationLabels,
-                datasets: [{
-                    label: 'Count',
-                    data: educationValues,
-                    backgroundColor: '#4e73df'
-                }]
-            },
-            options: {
-                responsive: true,
-                indexAxis: 'y',
-                scales: {
-                    x: { beginAtZero: true, ticks: { color: 'white' } },
-                    y: { ticks: { color: 'white' } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
+        createChartIfValid('jobChart', 'bar', jobLabels, jobValues, {
+            responsive: true,
+            scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+            plugins: { legend: { display: false } }
+        }, '#CB3CFF');
 
-        // === Contact Channel ===
-        new Chart(document.getElementById('contactChart'), {
-            type: 'bar',
-            data: { 
-                labels: contactLabels,
-                datasets: [{
-                    label: 'Count',
-                    data: contactValues,
-                    backgroundColor: ['#CB3CFF', '#1cc88a']
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: 'white' } },
-                    x: { ticks: { color: 'white' } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
+        createChartIfValid('educationChart', 'bar', educationLabels, educationValues, {
+            responsive: true,
+            indexAxis: 'y',
+            scales: { x: { beginAtZero: true, ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } },
+            plugins: { legend: { display: false } }
+        }, '#4e73df');
 
-        // === Age Distribution ===
-        new Chart(document.getElementById('ageChart'), {
-            type: 'bar',
-            data: { 
-                labels: ageLabels,
-                datasets: [{
-                    label: 'Count',
-                    data: ageValues,
-                    backgroundColor: '#e74a3b'
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: 'white' } },
-                    x: { ticks: { color: 'white' } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
+        createChartIfValid('contactChart', 'bar', contactLabels, contactValues, {
+            responsive: true,
+            scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+            plugins: { legend: { display: false } }
+        }, ['#CB3CFF', '#1cc88a']);
 
-        // === Conversion by Age ===
-        new Chart(document.getElementById('conversionAgeChart'), {
-            type: 'bar',
-            data: { 
-                labels: conversionAgeLabels,
-                datasets: [{
-                    label: 'Conversion Rate (%)',
-                    data: conversionAgeValues,
-                    backgroundColor: '#1cc88a'
-                }]
+        createChartIfValid('ageChart', 'bar', ageLabels, ageValues, {
+            responsive: true,
+            scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
+            plugins: { legend: { display: false } }
+        }, '#e74a3b');
+
+        createChartIfValid('conversionAgeChart', 'bar', conversionAgeLabels, conversionAgeValues, {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, ticks: { color: 'white', callback: v => v + '%' } },
+                x: { ticks: { color: 'white' } }
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            color: 'white',
-                            callback: v => v + '%'
-                        }
-                    },
-                    x: { ticks: { color: 'white' } }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
+            plugins: { legend: { display: false } }
+        }, '#1cc88a');
     </script>
 }

@@ -32,8 +32,7 @@ body {
 /* --- Menú de navegación (Reports, Table, Upload) --- */
 .nav-menu {
     background-color: #121228;
-    paddin
-        g: 15px;
+    padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
     border: 1px solid #1a1a33;
@@ -210,4 +209,10 @@ body {
     border-radius: 10px;
     margin-bottom: 20px;
     min-height: 300px; 
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 300px !important;
+    display: block;
 }
