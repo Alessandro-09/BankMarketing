@@ -11,8 +11,12 @@
       "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\models\\campaignpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:models\\campaignpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\models\\poutcomepoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:models\\poutcomepoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\wwwroot\\css\\dashboard.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
@@ -26,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,13 +42,39 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CampaignPoint.cs",
+              "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Models\\CampaignPoint.cs",
+              "RelativeDocumentMoniker": "Models\\CampaignPoint.cs",
+              "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Models\\CampaignPoint.cs",
+              "RelativeToolTip": "Models\\CampaignPoint.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-21T05:41:56.695Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PoutcomePoint.cs",
+              "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Models\\PoutcomePoint.cs",
+              "RelativeDocumentMoniker": "Models\\PoutcomePoint.cs",
+              "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Models\\PoutcomePoint.cs",
+              "RelativeToolTip": "Models\\PoutcomePoint.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-21T05:41:38.808Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
               "Title": "DashboardController.cs",
               "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Controllers\\DashboardController.cs",
               "RelativeDocumentMoniker": "Controllers\\DashboardController.cs",
               "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Controllers\\DashboardController.cs",
               "RelativeToolTip": "Controllers\\DashboardController.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAowBAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAJoAAAAAAAAAAAAAwIQAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-08T02:57:26.201Z",
               "EditorCaption": ""
@@ -57,35 +87,22 @@
               "RelativeDocumentMoniker": "Views\\Dashboard\\Index.cshtml",
               "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Views\\Dashboard\\Index.cshtml",
               "RelativeToolTip": "Views\\Dashboard\\Index.cshtml",
-              "ViewState": "AgIAAMAAAAAAAAAAAAAAABYAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAMcBAAAAAAAAAAAlwOkBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-10-08T00:07:30.545Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "dashboard.css",
               "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\wwwroot\\css\\dashboard.css",
               "RelativeDocumentMoniker": "wwwroot\\css\\dashboard.css",
               "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\wwwroot\\css\\dashboard.css",
               "RelativeToolTip": "wwwroot\\css\\dashboard.css",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAANQAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
               "WhenOpened": "2025-10-08T00:06:30.954Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAAAAcAAAA4AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-08T00:05:36.656Z",
               "EditorCaption": ""
             }
           ]

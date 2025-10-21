@@ -203,16 +203,103 @@ body {
     background-color: #081028;
 }
 
+/* --- Layout y estilo para métricas KPI's (compacto en una sola línea) --- */
+.kpi-cards {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;             /* intentar mantener en una sola fila */
+    margin-bottom: 20px;
+    overflow-x: auto;              /* permitir scroll horizontal si falta espacio */
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.kpi-card {
+    flex: 0 0 220px;               /* ancho base fijo, no crecer */
+    min-width: 140px;
+    max-width: 280px;
+    background: linear-gradient(180deg, rgba(18,18,36,0.85), rgba(12,12,24,0.65));
+    border: 1px solid rgba(255,255,255,0.04);
+    color: #ddd;
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    height: 56px;
+}
+
+.kpi-card .card-body {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+}
+
+/* Metadatos (título y subtítulo) */
+.kpi-meta h6 {
+    font-size: 11px;
+    color: #bfc7d9;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+.kpi-meta small {
+    display: block;
+    font-size: 11px;
+    color: #99a0b3;
+    line-height: 1;
+}
+
+/* Valor principal de la KPI */
+.kpi-value {
+    font-size: 18px;
+    color: #ffffff;
+    font-weight: 800;
+    text-align: right;
+    min-width: 72px;
+}
+
+/* --- Chart container --- */
 .chart-container {
     background-color: #121228;
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
     min-height: 300px; 
+    position: relative;
 }
 
+/* Forzar que los canvas tengan tamaño visual consistente */
 .chart-container canvas {
     width: 100% !important;
     height: 300px !important;
     display: block;
+    cursor: default;
+}
+
+/* Estética de títulos en charts */
+.chart-container .chart-title {
+    color: #ddd;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 992px) {
+    .kpi-card { flex: 0 0 45%; max-width: 48%; height: auto; }
+    .chart-container canvas { height: 280px !important; }
+}
+
+@media (max-width: 576px) {
+    .kpi-cards { flex-direction: row; gap: 10px; }
+    .kpi-card { flex: 0 0 70%; min-width: 180px; height: auto; }
+    .chart-container canvas { height: 260px !important; }
 }
