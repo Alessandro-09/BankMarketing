@@ -1,0 +1,147 @@
+﻿@model List<BankMarketingDashboard.Models.CampaignRecord>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var qs = HttpContextAccessor.HttpContext?.Request.QueryString.HasValue == true
+        ? HttpContextAccessor.HttpContext.Request.QueryString.Value
+        : "";
+    var exportCsvUrl = Url.Action("ExportCsv") + qs;
+    var exportExcelUrl = Url.Action("ExportExcel") + qs;
+}
+
+@if (Model == null || !Model.Any())
+{
+    <div class="no-data p-4 text-center text-muted">
+        <h5>No records match the selected filters</h5>
+        <p class="mb-0">Try removing filters or widen the ranges in the left sidebar.</p>
+    </div>
+
+    <div class="mt-3 text-center">
+        <a class="btn btn-outline-light btn-sm disabled" aria-disabled="true" href="#">📥 Export CSV (filtered)</a>
+        <a class="btn btn-outline-light btn-sm disabled" aria-disabled="true" href="#">📄 Export Excel (filtered)</a>
+        <small class="text-muted ms-2">(No data to export)</small>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table id="interactiveTable" class="table table-dark table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Age</th>
+                    <th>Job</th>
+                    <th>Marital</th>
+                    <th>Education</th>
+                    <th>Default</th>
+                    <th>Housing</th>
+                    <th>Loan</th>
+                    <th>Contact</th>
+                    <th>Month</th>
+                    <th>Duration</th>
+                    <th>Campaign</th>
+                    <th>PDays</th>
+                    <th>Previous</th>
+                    <th>Poutcome</th>
+                    <th>Emp. Var. Rate</th>
+                    <th>Cons. Price Idx</th>
+                    <th>Cons. Conf. Idx</th>
+                    <th>Euribor 3M</th>
+                    <th>Nr. Employed</th>
+                    <th>Subscribed?</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Model)
+                {
+                    <tr>
+                        <td>@record.Age</td>
+                        <td>@record.Job</td>
+                        <td>@record.Marital</td>
+                        <td>@record.Education</td>
+                        <td>@record.Default</td>
+                        <td>@record.Housing</td>
+                        <td>@record.Loan</td>
+                        <td>@record.Contact</td>
+                        <td>@record.Month</td>
+                        <td>@record.Duration</td>
+                        <td>@record.Campaign</td>
+                        <td>@record.Pdays</td>
+                        <td>@record.Previous</td>
+                        <td>@record.Poutcome</td>
+                        <td>@record.EmpVarRate.ToString("F2")</td>
+                        <td>@record.ConsPriceIdx.ToString("F3")</td>
+                        <td>@record.ConsConfIdx.ToString("F1")</td>
+                        <td>@record.Euribor3m.ToString("F3")</td>
+                        <td>@record.NrEmployed.ToString("F1")</td>
+                        <td>@(record.Y == "yes" ? "Yes" : "No")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-3">
+        <a href="@exportCsvUrl" class="btn btn-outline-light btn-sm">📥 Export CSV (filtered)</a>
+        <a href="@exportExcelUrl" class="btn btn-outline-light btn-sm">📄 Export Excel (filtered)</a>
+        <small class="text-muted ms-2">(Exports filtered results)</small>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        <nav>
+            <ul class="pagination">
+                @{
+                    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+                    var totalPages = ViewBag.TotalPages as int? ?? 1;
+                    var totalRecords = ViewBag.TotalRecords as int? ?? 0;
+                }
+
+                @if (currentPage > 1)
+                {
+                    <li class="page-item">
+                        @{
+                            var prevQs = HttpContextAccessor.HttpContext?.Request.QueryString.HasValue == true
+                                ? HttpContextAccessor.HttpContext.Request.QueryString.Value
+                                : "";
+                            var prevUrl = Url.Action("Index", new { page = currentPage - 1 }) + prevQs;
+                        }
+                        <a class="page-link text-white bg-dark" href="@prevUrl">Anterior</a>
+                    </li>
+                }
+
+                @{
+                    var startPage = Math.Max(1, currentPage - 2);
+                    var endPage = Math.Min(totalPages, startPage + 4);
+                    if (endPage - startPage < 4 && totalPages > 5)
+                    {
+                        startPage = Math.Max(1, endPage - 4);
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    var pageQs = HttpContextAccessor.HttpContext?.Request.QueryString.HasValue == true
+                        ? HttpContextAccessor.HttpContext.Request.QueryString.Value
+                        : "";
+                    var pageUrl = Url.Action("Index", new { page = i }) + pageQs;
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link text-white bg-dark @(i == currentPage ? "bg-purple" : "")"
+                           href="@pageUrl">@i</a>
+                    </li>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <li class="page-item">
+                        @{
+                            var nextQs = HttpContextAccessor.HttpContext?.Request.QueryString.HasValue == true
+                                ? HttpContextAccessor.HttpContext.Request.QueryString.Value
+                                : "";
+                            var nextUrl = Url.Action("Index", new { page = currentPage + 1 }) + nextQs;
+                        }
+                        <a class="page-link text-white bg-dark" href="@nextUrl">Siguiente</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}

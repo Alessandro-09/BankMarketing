@@ -10,9 +10,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Registrar servicios en el contenedor de dependencias (DI).
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 // Registrar el servicio de validación de datos para que los controladores lo reciban vía DI.
 builder.Services.AddScoped<DataValidationService>();
+
+builder.Services.AddHttpContextAccessor();  // <<< register IHttpContextAccessor
 
 // Aumentar el tamaño máximo permitido para cargas multipart (ej.: 200 MB).
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
@@ -67,4 +70,5 @@ app.MapControllerRoute(
     pattern: "{controller=Dashboard}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.MapRazorPages(); // Added mapping for Razor Pages
 app.Run();

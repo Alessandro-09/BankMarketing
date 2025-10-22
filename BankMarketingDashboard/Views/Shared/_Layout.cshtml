@@ -395,16 +395,16 @@
                     if (typeof window.applyFilters === 'function') {
                         try {
                             const ok = await window.applyFilters(qs);
-                            if (ok) history.pushState({}, '', '/Dashboard' + (qs ? `?${qs}` : ''));
+                            if (ok) history.pushState({}, '', window.location.pathname + (qs ? `?${qs}` : ''));
                         } catch (e) {
                             console.error(e);
                         }
                     } else {
                         // fallback: recarga completa si no existe la función AJAX
                         const url = new URL(window.location.href);
-                        url.pathname = '/Dashboard';
-                        url.search = qs;
-                        window.location.href = url.toString();
+                        url.pathname = window.location.pathname;
+                         url.search = qs;
+                         window.location.href = url.toString();
                     }
                 }, 120);
             };
