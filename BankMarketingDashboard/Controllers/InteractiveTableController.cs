@@ -122,7 +122,7 @@ namespace BankMarketingDashboard.Controllers
             ViewBag.MinEuribor3m = minEuribor3m;
             ViewBag.MaxEuribor3m = maxEuribor3m;
             ViewBag.MinNrEmployed = minNrEmployed;
-            ViewBag.MaxNrEmployed = maxNrEmpleados;
+            ViewBag.MaxNrEmployed = maxNrEmployed;
 
             return View(records);
         }
@@ -162,7 +162,7 @@ namespace BankMarketingDashboard.Controllers
             [FromQuery(Name = "euribor3m_min")] double? minEuribor3m = null,
             [FromQuery(Name = "euribor3m_max")] double? maxEuribor3m = null,
             [FromQuery(Name = "nremployed_min")] double? minNrEmployed = null,
-            [FromQuery(Name = "nremployed_max")] double? maxNrEmpleados = null)
+            [FromQuery(Name = "nremployed_max")] double? maxNrEmployed = null)
         {
             // Línea de depuración para verificar qué parámetros está recibiendo esta llamada parcial
             System.Diagnostics.Debug.WriteLine($"TablePartial called: page={page}, minPdays={minPdays}, maxPdays={maxPdays}, minCampaign={minCampaign}, maxCampaign={maxCampaign}, minPrevious={minPrevious}, maxPrevious={maxPrevious}, minEmpVarRate={minEmpVarRate}, maxEmpVarRate={maxEmpVarRate}, minConsPriceIdx={minConsPriceIdx}, maxConsPriceIdx={maxConsPriceIdx}, minConsConfIdx={minConsConfIdx}, maxConsConfIdx={maxConsConfIdx}");
@@ -176,7 +176,7 @@ namespace BankMarketingDashboard.Controllers
                 minPdays, maxPdays, minPrevious, maxPrevious,
                 minEmpVarRate, maxEmpVarRate, minConsPriceIdx, maxConsPriceIdx,
                 minConsConfIdx, maxConsConfIdx, minEuribor3m, maxEuribor3m,
-                minNrEmployed, maxNrEmpleados);
+                minNrEmployed, maxNrEmployed);
 
             var totalRecords = query.Count();
             var totalPages = (int)System.Math.Ceiling((double)totalRecords / PageSize);
@@ -225,7 +225,7 @@ namespace BankMarketingDashboard.Controllers
             ViewBag.MinEuribor3m = minEuribor3m;
             ViewBag.MaxEuribor3m = maxEuribor3m;
             ViewBag.MinNrEmployed = minNrEmployed;
-            ViewBag.MaxNrEmpleados = maxNrEmpleados;
+            ViewBag.MaxNrEmployed = maxNrEmployed;
 
             return PartialView("_InteractiveTablePartial", records);
         }
@@ -306,7 +306,7 @@ namespace BankMarketingDashboard.Controllers
                         Escape(r.ConsPriceIdx),
                         Escape(r.ConsConfIdx),
                         Escape(r.Euribor3m),
-                        Escape(r.NrEmpleados),
+                        Escape(r.NrEmployed),
                         Escape(r.Y)
                     ));
                 }
@@ -421,7 +421,7 @@ namespace BankMarketingDashboard.Controllers
                         worksheet.Cell(i + 2, 17).Value = r.ConsPriceIdx;
                         worksheet.Cell(i + 2, 18).Value = r.ConsConfIdx;
                         worksheet.Cell(i + 2, 19).Value = r.Euribor3m;
-                        worksheet.Cell(i + 2, 20).Value = r.NrEmpleados;
+                        worksheet.Cell(i + 2, 20).Value = r.NrEmployed;
                         worksheet.Cell(i + 2, 21).Value = r.Y;
                     }
 
@@ -610,8 +610,8 @@ namespace BankMarketingDashboard.Controllers
             if (minEuribor3m.HasValue) query = query.Where(c => c.Euribor3m >= minEuribor3m.Value);
             if (maxEuribor3m.HasValue) query = query.Where(c => c.Euribor3m <= maxEuribor3m.Value);
 
-            if (minNrEmpleados.HasValue) query = query.Where(c => c.NrEmpleados >= minNrEmpleados.Value);
-            if (maxNrEmpleados.HasValue) query = query.Where(c => c.NrEmpleados <= maxNrEmpleados.Value);
+            if (minNrEmpleados.HasValue) query = query.Where(c => c.NrEmployed >= minNrEmpleados.Value);
+            if (maxNrEmpleados.HasValue) query = query.Where(c => c.NrEmployed <= maxNrEmpleados.Value);
 
             return query;
         }
