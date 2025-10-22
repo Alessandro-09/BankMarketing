@@ -182,309 +182,329 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-boxplot@3.1.0/build/Chart.BoxPlot.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.0/dist/chartjs-chart-matrix.min.js"></script>
 
-    <script>
-        // Serialize all datasets required by the page
-        const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label ?? "Unknown").ToArray()));
-        const maritalValues = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Value).ToArray()));
+    <script data-dash-init>
+        // signal for init completion (used by AJAX caller)
+        window.__dash_init_done = false;
+        window.__dash_init_error = null;
+        console.debug('[dash] init start');
 
-        const jobLabels = @Html.Raw(Json.Serialize(jobData.Select(j => j.Label ?? "Unknown").ToArray()));
-        const jobValues = @Html.Raw(Json.Serialize(jobData.Select(j => j.Value).ToArray()));
+        try {
+            // Serialize datasets (server -> JS)
+            const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label ?? "Unknown").ToArray()));
+            const maritalValues = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Value).ToArray()));
 
-        const educationLabels = @Html.Raw(Json.Serialize(educationData.Select(e => e.Label ?? "Unknown").ToArray()));
-        const educationValues = @Html.Raw(Json.Serialize(educationData.Select(e => e.Value).ToArray()));
+            const jobLabels = @Html.Raw(Json.Serialize(jobData.Select(j => j.Label ?? "Unknown").ToArray()));
+            const jobValues = @Html.Raw(Json.Serialize(jobData.Select(j => j.Value).ToArray()));
 
-        const contactLabels = @Html.Raw(Json.Serialize(contactData.Select(c => c.Label ?? "Unknown").ToArray()));
-        const contactValues = @Html.Raw(Json.Serialize(contactData.Select(c => c.Value).ToArray()));
+            const educationLabels = @Html.Raw(Json.Serialize(educationData.Select(e => e.Label ?? "Unknown").ToArray()));
+            const educationValues = @Html.Raw(Json.Serialize(educationData.Select(e => e.Value).ToArray()));
 
-        const ageLabels = @Html.Raw(Json.Serialize(ageData.Select(a => a.Label).ToArray()));
-        const ageValues = @Html.Raw(Json.Serialize(ageData.Select(a => a.Value).ToArray()));
+            const contactLabels = @Html.Raw(Json.Serialize(contactData.Select(c => c.Label ?? "Unknown").ToArray()));
+            const contactValues = @Html.Raw(Json.Serialize(contactData.Select(c => c.Value).ToArray()));
 
-        const conversionAgeLabels = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Label).ToArray()));
-        const conversionAgeValues = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Value).ToArray()));
+            const ageLabels = @Html.Raw(Json.Serialize(ageData.Select(a => a.Label).ToArray()));
+            const ageValues = @Html.Raw(Json.Serialize(ageData.Select(a => a.Value).ToArray()));
 
-        const defaultLabels = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Label).ToArray()));
-        const defaultValues = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Value).ToArray()));
+            const conversionAgeLabels = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Label).ToArray()));
+            const conversionAgeValues = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Value).ToArray()));
 
-        const housingLabels = @Html.Raw(Json.Serialize(housingData.Select(d => d.Label).ToArray()));
-        const housingValues = @Html.Raw(Json.Serialize(housingData.Select(d => d.Value).ToArray()));
+            const defaultLabels = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Label).ToArray()));
+            const defaultValues = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Value).ToArray()));
 
-        const loanLabels = @Html.Raw(Json.Serialize(loanData.Select(d => d.Label).ToArray()));
-        const loanValues = @Html.Raw(Json.Serialize(loanData.Select(d => d.Value).ToArray()));
+            const housingLabels = @Html.Raw(Json.Serialize(housingData.Select(d => d.Label).ToArray()));
+            const housingValues = @Html.Raw(Json.Serialize(housingData.Select(d => d.Value).ToArray()));
 
-        const monthLabels = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Label).ToArray()));
-        const monthValues = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Value).ToArray()));
+            const loanLabels = @Html.Raw(Json.Serialize(loanData.Select(d => d.Label).ToArray()));
+            const loanValues = @Html.Raw(Json.Serialize(loanData.Select(d => d.Value).ToArray()));
 
-        const dayLabels = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Label).ToArray()));
-        const dayValues = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Value).ToArray()));
+            const monthLabels = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Label).ToArray()));
+            const monthValues = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Value).ToArray()));
 
-        const boxplotRaw = @Html.Raw(Json.Serialize(boxplotData));
-        const poutcomeRaw = @Html.Raw(Json.Serialize(poutcomeStack));
-        const campaignRaw = @Html.Raw(Json.Serialize(campaignScatter));
+            const dayLabels = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Label).ToArray()));
+            const dayValues = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Value).ToArray()));
 
-        // Formatter: English UI
-        const numberFormatter = new Intl.NumberFormat('en-US');
+            const boxplotRaw = @Html.Raw(Json.Serialize(boxplotData));
+            const poutcomeRaw = @Html.Raw(Json.Serialize(poutcomeStack));
+            const campaignRaw = @Html.Raw(Json.Serialize(campaignScatter));
 
-        function safeNumbers(arr) {
-            if (!Array.isArray(arr)) return [];
-            return arr.map(v => {
-                const n = Number(v);
-                return Number.isFinite(n) ? n : 0;
-            });
-        }
+            // Helpers
+            const numberFormatter = new Intl.NumberFormat('en-US');
 
-        function initChart(canvasId, factory) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) return null;
-            const ctx = canvas.getContext('2d');
-            try {
-                const cfg = factory(ctx);
-                return new Chart(ctx, cfg);
-            } catch (e) {
-                console.error('Error creating chart', canvasId, e);
-                return null;
+            function safeNumbers(arr) {
+                if (!Array.isArray(arr)) return [];
+                return arr.map(v => {
+                    const n = Number(v);
+                    return Number.isFinite(n) ? n : 0;
+                });
             }
-        }
 
-        const commonOpts = {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'nearest', intersect: false },
-            plugins: {
-                legend: { labels: { color: 'white' } },
-                tooltip: { callbacks: { label: ctx => numberFormatter.format(ctx.raw) } }
-            },
-            scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
-        };
-
-        // Original charts
-        initChart('maritalChart', ctx => ({
-            type: 'doughnut',
-            data: { labels: maritalLabels, datasets: [{ data: safeNumbers(maritalValues), backgroundColor: ['#CB3CFF','#4e73df','#1cc88a','#e74a3b'], borderWidth: 2 }] },
-            options: { ...commonOpts, plugins: { ...commonOpts.plugins, legend: { position: 'right' } } }
-        }));
-
-        initChart('jobChart', ctx => ({
-            type: 'bar',
-            data: { labels: jobLabels, datasets: [{ data: safeNumbers(jobValues), backgroundColor: '#CB3CFF' }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        initChart('educationChart', ctx => ({
-            type: 'bar',
-            data: { labels: educationLabels, datasets: [{ data: safeNumbers(educationValues), backgroundColor: '#4e73df' }] },
-            options: { ...commonOpts, indexAxis: 'y', scales: { x: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        initChart('contactChart', ctx => ({
-            type: 'bar',
-            data: { labels: contactLabels, datasets: [{ data: safeNumbers(contactValues), backgroundColor: ['#CB3CFF','#1cc88a'] }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        // Fix: Age distribution and conversion by age (these were missing)
-        initChart('ageChart', ctx => ({
-            type: 'bar',
-            data: { labels: ageLabels, datasets: [{ data: safeNumbers(ageValues), backgroundColor: '#e74a3b' }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        initChart('conversionAgeChart', ctx => ({
-            type: 'bar',
-            data: { labels: conversionAgeLabels, datasets: [{ data: safeNumbers(conversionAgeValues), backgroundColor: '#1cc88a' }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { callback: v => v + '%' } } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        // New charts: default/housing/loan
-        initChart('defaultChart', ctx => ({
-            type: 'bar',
-            data: { labels: defaultLabels, datasets: [{ data: safeNumbers(defaultValues), backgroundColor: '#8b5cf6' }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        initChart('housingChart', ctx => ({
-            type: 'bar',
-            data: { labels: housingLabels, datasets: [{ data: safeNumbers(housingValues), backgroundColor: '#4e73df' }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        initChart('loanChart', ctx => ({
-            type: 'bar',
-            data: { labels: loanLabels, datasets: [{ data: safeNumbers(loanValues), backgroundColor: '#1cc88a' }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
-        }));
-
-        // Month vs conversion
-        initChart('monthConvChart', ctx => ({
-            type: 'line',
-            data: { labels: monthLabels, datasets: [{ label: 'Conversion rate (%)', data: safeNumbers(monthValues), borderColor: '#CB3CFF', backgroundColor: 'rgba(203,60,255,0.12)', fill: true, tension: 0.35 }] },
-            options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, tooltip: { callbacks: { label: ctx => `${numberFormatter.format(ctx.raw)}%` } } } }
-        }));
-
-        // Day heatmap (matrix) — use numeric grid coords and stable cell size
-        (function () {
-            const canvas = document.getElementById('dayHeatmap');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const cells = (dayValues || []).map((v, i) => ({ x: 0, y: i, v: Number(v) || 0 }));
-            if (!cells.length) {
-                console.warn('dayHeatmap: no data');
-                return;
+            function initChart(canvasId, factory) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return null;
+                const ctx = canvas.getContext('2d');
+                try {
+                    const cfg = factory(ctx);
+                    const chart = new Chart(ctx, cfg);
+                    canvas._chartInstance = chart;
+                    return chart;
+                } catch (e) {
+                    console.error('Error creating chart', canvasId, e);
+                    return null;
+                }
             }
-            new Chart(ctx, {
-                type: 'matrix',
-                data: {
-                    datasets: [{
-                        label: 'Conversion rate by day',
-                        data: cells,
-                        backgroundColor(context) {
-                            const value = context.dataset.data[context.dataIndex].v;
-                            const pct = Math.max(0, Math.min(1, value / 100));
-                            const r = Math.round(30 + 200 * pct);
-                            const g = Math.round(30 + 120 * (1 - pct));
-                            const b = Math.round(60 + 60 * (1 - pct));
-                            return `rgb(${r},${g},${b})`;
-                        },
-                        // fixed cell size so it is visible and not full-width
-                        width: () => 40,
-                        height: ({ chart }) => Math.max(30, Math.floor(chart.height / Math.max(1, dayValues.length)) - 6)
-                    }]
+
+            function destroyIfExists(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (el._chartInstance) {
+                    try { el._chartInstance.destroy(); } catch (e) { console.warn(e); }
+                    el._chartInstance = null;
+                }
+            }
+
+            const commonOpts = {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'nearest', intersect: false },
+                plugins: {
+                    legend: { labels: { color: 'white' } },
+                    tooltip: { callbacks: { label: ctx => {
+                        if (ctx.raw && typeof ctx.raw === 'object' && ctx.raw.v !== undefined) return `${numberFormatter.format(ctx.raw.v)}%`;
+                        return numberFormatter.format(ctx.raw);
+                    } } }
                 },
-                options: {
-                    parsing: false,
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: ctx => `${dayLabels[ctx.dataIndex]}: ${numberFormatter.format(ctx.raw.v)}%` } }
-                    },
-                    scales: {
-                        x: { display: false },
-                        y: {
-                            ticks: { callback: (val, index) => dayLabels[index], color: 'white' },
-                            reverse: true
-                        }
-                    },
-                    interaction: { mode: 'nearest', intersect: false }
-                }
-            });
-        })();
+                scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
+            };
 
-        // Boxplot (ensure plugin receives arrays [min,q1,median,q3,max])
-        (function () {
-            const canvas = document.getElementById('durationBoxplot');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            const labels = (boxplotRaw || []).map(b => b.label ?? b.Label ?? '');
-            const data = (boxplotRaw || []).map(b => [
-                Number(b.min ?? b.Min ?? 0),
-                Number(b.q1 ?? b.Q1 ?? 0),
-                Number(b.median ?? b.Median ?? 0),
-                Number(b.q3 ?? b.Q3 ?? 0),
-                Number(b.max ?? b.Max ?? 0)
-            ]);
-
-            if (!labels.length) {
-                console.warn('durationBoxplot: no data');
-                return;
-            }
-
-            new Chart(ctx, {
-                type: 'boxplot',
-                data: {
-                    labels,
-                    datasets: [{ label: 'Duration (s)', backgroundColor: '#4e73df', borderColor: '#081028', data }]
-                },
-                options: {
-                    ...commonOpts,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: t => {
-                                    const arr = t.raw || [];
-                                    return `Min ${numberFormatter.format(arr[0])}, Q1 ${numberFormatter.format(arr[1])}, Median ${numberFormatter.format(arr[2])}, Q3 ${numberFormatter.format(arr[3])}, Max ${numberFormatter.format(arr[4])}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' }, beginAtZero: true } },
-                    interaction: { mode: 'nearest', intersect: false }
-                }
-            });
-        })();
-
-        // Poutcome stacked
-        (function () {
-            const canvas = document.getElementById('poutcomeStacked');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            const labels = (poutcomeRaw || []).map(p => p.Label ?? p.label ?? '');
-            const yesData = (poutcomeRaw || []).map(p => Number(p.Yes ?? p.yes ?? 0));
-            const noData = (poutcomeRaw || []).map(p => Number(p.No ?? p.no ?? 0));
-
-            if (!labels.length) {
-                console.warn('poutcomeStacked: no data');
-                return;
-            }
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets: [{ label: 'No', data: noData, backgroundColor: '#6b7280' }, { label: 'Yes', data: yesData, backgroundColor: '#1cc88a' }] },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${numberFormatter.format(Number(ctx.raw || 0))}` } },
-                        legend: { labels: { color: 'white' } }
-                    },
-                    scales: { x: { ticks: { color: 'white' }, stacked: true }, y: { ticks: { color: 'white' }, stacked: true, beginAtZero: true } },
-                    interaction: { mode: 'nearest', intersect: false }
-                }
-            });
-        })();
-
-        // Campaign scatter (bubble) — use numeric x (campaign id) so bubble scale works reliably
-        (function () {
-            const canvas = document.getElementById('campaignScatter');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            const pts = (campaignRaw || []).map(p => ({
-                x: Number(p.Campaign ?? p.campaign ?? 0),
-                y: Number(p.ConversionRate ?? p.conversionRate ?? 0),
-                r: Math.max(3, Math.log((Number(p.Total ?? p.total ?? 1) + 1)) * 2),
-                meta: p
+            // Render charts (destroy prior instances first)
+            destroyIfExists('maritalChart');
+            initChart('maritalChart', ctx => ({
+                type: 'doughnut',
+                data: { labels: maritalLabels, datasets: [{ data: safeNumbers(maritalValues), backgroundColor: ['#CB3CFF','#4e73df','#1cc88a','#e74a3b'], borderWidth: 2 }] },
+                options: { ...commonOpts, plugins: { ...commonOpts.plugins, legend: { position: 'right' } } }
             }));
 
-            if (!pts.length) {
-                console.warn('campaignScatter: no data');
-                return;
-            }
+            destroyIfExists('jobChart');
+            initChart('jobChart', ctx => ({
+                type: 'bar',
+                data: { labels: jobLabels, datasets: [{ data: safeNumbers(jobValues), backgroundColor: '#CB3CFF' }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
 
-            new Chart(ctx, {
-                type: 'bubble',
-                data: { datasets: [{ label: 'Campaign', data: pts, backgroundColor: '#CB3CFF' }] },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: ctx => {
-                                    const item = ctx.raw || {};
-                                    const total = Number(item.meta?.Total ?? item.meta?.total ?? 0);
-                                    return `Campaign ${item.x}: ${numberFormatter.format(item.y)}% (n=${total})`;
-                                }
-                            }
+            destroyIfExists('educationChart');
+            initChart('educationChart', ctx => ({
+                type: 'bar',
+                data: { labels: educationLabels, datasets: [{ data: safeNumbers(educationValues), backgroundColor: '#4e73df' }] },
+                options: { ...commonOpts, indexAxis: 'y', scales: { x: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
+
+            destroyIfExists('contactChart');
+            initChart('contactChart', ctx => ({
+                type: 'bar',
+                data: { labels: contactLabels, datasets: [{ data: safeNumbers(contactValues), backgroundColor: ['#CB3CFF','#1cc88a'] }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
+
+            destroyIfExists('ageChart');
+            initChart('ageChart', ctx => ({
+                type: 'bar',
+                data: { labels: ageLabels, datasets: [{ data: safeNumbers(ageValues), backgroundColor: '#e74a3b' }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
+
+            destroyIfExists('conversionAgeChart');
+            initChart('conversionAgeChart', ctx => ({
+                type: 'bar',
+                data: { labels: conversionAgeLabels, datasets: [{ data: safeNumbers(conversionAgeValues), backgroundColor: '#1cc88a' }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { callback: v => v + '%' } } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
+
+            destroyIfExists('defaultChart');
+            initChart('defaultChart', ctx => ({
+                type: 'bar',
+                data: { labels: defaultLabels, datasets: [{ data: safeNumbers(defaultValues), backgroundColor: '#8b5cf6' }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
+
+            destroyIfExists('housingChart');
+            initChart('housingChart', ctx => ({
+                type: 'bar',
+                data: { labels: housingLabels, datasets: [{ data: safeNumbers(housingValues), backgroundColor: '#4e73df' }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
+
+            destroyIfExists('loanChart');
+            initChart('loanChart', ctx => ({
+                type: 'bar',
+                data: { labels: loanLabels, datasets: [{ data: safeNumbers(loanValues), backgroundColor: '#1cc88a' }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
+            }));
+
+            destroyIfExists('monthConvChart');
+            initChart('monthConvChart', ctx => ({
+                type: 'line',
+                data: { labels: monthLabels, datasets: [{ label: 'Conversion rate (%)', data: safeNumbers(monthValues), borderColor: '#CB3CFF', backgroundColor: 'rgba(203,60,255,0.12)', fill: true, tension: 0.35 }] },
+                options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, tooltip: { callbacks: { label: ctx => `${numberFormatter.format(ctx.raw)}%` } } } }
+            }));
+
+            // Day heatmap (matrix)
+            (function () {
+                destroyIfExists('dayHeatmap');
+                const canvas = document.getElementById('dayHeatmap');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const cells = (dayValues || []).map((v, i) => ({ x: 0, y: i, v: Number(v) || 0 }));
+                if (!cells.length) return;
+                const chart = new Chart(ctx, {
+                    type: 'matrix',
+                    data: {
+                        datasets: [{
+                            label: 'Conversion rate by day',
+                            data: cells,
+                            backgroundColor(context) {
+                                const value = context.dataset.data[context.dataIndex].v;
+                                const pct = Math.max(0, Math.min(1, value / 100));
+                                const r = Math.round(30 + 200 * pct);
+                                const g = Math.round(30 + 120 * (1 - pct));
+                                const b = Math.round(60 + 60 * (1 - pct));
+                                return `rgb(${r},${g},${b})`;
+                            },
+                            width: () => 40,
+                            height: ({ chart }) => Math.max(30, Math.floor(chart.height / Math.max(1, dayValues.length)) - 6)
+                        }]
+                    },
+                    options: {
+                        parsing: false,
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: ctx => `${dayLabels[ctx.dataIndex]}: ${numberFormatter.format(ctx.raw.v)}%` } }
                         },
-                        legend: { labels: { color: 'white' } }
-                    },
-                    scales: {
-                        x: { type: 'category', labels, ticks: { color: 'white' } },
-                        y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
-                    },
-                    interaction: { mode: 'nearest', intersect: false }
-                }
+                        scales: { x: { display: false }, y: { ticks: { callback: (val, index) => dayLabels[index], color: 'white' }, reverse: true } },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // Boxplot
+            (function () {
+                destroyIfExists('durationBoxplot');
+                const canvas = document.getElementById('durationBoxplot');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const labels = (boxplotRaw || []).map(b => b.label ?? b.Label ?? '');
+                const data = (boxplotRaw || []).map(b => [
+                    Number(b.min ?? b.Min ?? 0),
+                    Number(b.q1 ?? b.Q1 ?? 0),
+                    Number(b.median ?? b.Median ?? 0),
+                    Number(b.q3 ?? b.Q3 ?? 0),
+                    Number(b.max ?? b.Max ?? 0)
+                ]);
+                if (!labels.length) return;
+                const chart = new Chart(ctx, {
+                    type: 'boxplot',
+                    data: { labels, datasets: [{ label: 'Duration (s)', backgroundColor: '#4e73df', borderColor: '#081028', data }] },
+                    options: {
+                        ...commonOpts,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: t => {
+                                const arr = t.raw || [];
+                                return `Min ${numberFormatter.format(arr[0])}, Q1 ${numberFormatter.format(arr[1])}, Median ${numberFormatter.format(arr[2])}, Q3 ${numberFormatter.format(arr[3])}, Max ${numberFormatter.format(arr[4])}`;
+                            } } }
+                        },
+                        scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' }, beginAtZero: true } },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // Poutcome stacked
+            (function () {
+                destroyIfExists('poutcomeStacked');
+                const canvas = document.getElementById('poutcomeStacked');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const labels = (poutcomeRaw || []).map(p => p.Label ?? p.label ?? '');
+                const yesData = (poutcomeRaw || []).map(p => Number(p.Yes ?? p.yes ?? 0));
+                const noData = (poutcomeRaw || []).map(p => Number(p.No ?? p.no ?? 0));
+                if (!labels.length) return;
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ label: 'No', data: noData, backgroundColor: '#6b7280' }, { label: 'Yes', data: yesData, backgroundColor: '#1cc88a' }] },
+                    options: {
+                        responsive: true,
+                        plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${numberFormatter.format(Number(ctx.raw || 0))}` } }, legend: { labels: { color: 'white' } } },
+                        scales: { x: { ticks: { color: 'white' }, stacked: true }, y: { ticks: { color: 'white' }, stacked: true, beginAtZero: true } },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // Campaign scatter (bubble)
+            (function () {
+                destroyIfExists('campaignScatter');
+                const canvas = document.getElementById('campaignScatter');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const pts = (campaignRaw || []).map(p => ({
+                    x: Number(p.Campaign ?? p.campaign ?? 0),
+                    y: Number(p.ConversionRate ?? p.conversionRate ?? 0),
+                    r: Math.max(3, Math.log((Number(p.Total ?? p.total ?? 1) + 1)) * 2),
+                    meta: p
+                }));
+                if (!pts.length) return;
+                const chart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: { datasets: [{ label: 'Campaign', data: pts, backgroundColor: '#CB3CFF' }] },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: { callbacks: { label: ctx => {
+                                const item = ctx.raw || {};
+                                const total = Number(item.meta?.Total ?? item.meta?.total ?? 0);
+                                return `Campaign ${item.x}: ${numberFormatter.format(item.y)}% (n=${total})`;
+                            } } },
+                            legend: { labels: { color: 'white' } }
+                        },
+                        scales: {
+                            x: { type: 'linear', title: { display: true, text: 'Campaign', color: 'white' }, ticks: { color: 'white', precision: 0 } },
+                            y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
+                        },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // success
+            window.__dash_init_done = true;
+            console.debug('[dash] init done');
+        } catch (err) {
+            window.__dash_init_error = String(err);
+            window.__dash_init_done = true; // mark done so AJAX caller won't hang; error is available
+            console.error('[dash] init failed', err);
+        }
+
+        // helper for debugging: expose function that returns current init status
+        window.__dash_wait_for_init = function(timeoutMs = 2000) {
+            return new Promise((resolve) => {
+                const start = Date.now();
+                (function check() {
+                    if (window.__dash_init_done) {
+                        resolve({ ok: window.__dash_init_error === null, error: window.__dash_init_error });
+                        return;
+                    }
+                    if ((Date.now() - start) >= timeoutMs) {
+                        resolve({ ok: false, error: 'timeout waiting for init' });
+                        return;
+                    }
+                    setTimeout(check, 50);
+                })();
             });
-        })();
+        };
     </script>
 }

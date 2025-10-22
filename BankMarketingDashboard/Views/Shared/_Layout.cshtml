@@ -41,10 +41,10 @@
                 <h5>Filtros</h5>
 
                 <!-- === SLIDERS === -->
-                <div class="custom-slider" data-min="17" data-max="98" data-value="50" id="ageSliderContainer">
+                <div class="custom-slider" data-min="17" data-max="98" data-param="age_min" id="ageSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Age</span>
-                        <span class="slider-value" id="ageValue">50</span>
+                        <span class="slider-value" id="ageValue">17</span>
                     </div>
                     <div class="slider-track">
                         <div class="slider-fill"></div>
@@ -52,10 +52,10 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="0" data-max="4918" data-value="1000" id="durationSliderContainer">
+                <div class="custom-slider" data-min="0" data-max="4918" data-param="duration_min" id="durationSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Call duration</span>
-                        <span class="slider-value" id="durationValue">1000 s</span>
+                        <span class="slider-value" id="durationValue">0 s</span>
                     </div>
                     <div class="slider-track">
                         <div class="slider-fill"></div>
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="1" data-max="56" data-value="10" id="campaignsSliderContainer">
+                <div class="custom-slider" data-min="1" data-max="56" data-param="campaign_min" id="campaignsSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Number of campaigns</span>
                         <span class="slider-value" id="campaignsValue">10</span>
@@ -74,7 +74,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="0" data-max="999" data-value="100" id="pdaysSliderContainer">
+                <div class="custom-slider" data-min="0" data-max="999" data-param="pdays_min" id="pdaysSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Days since last contact</span>
                         <span class="slider-value" id="pdaysValue">100</span>
@@ -85,7 +85,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="0" data-max="7" data-value="0" id="previousSliderContainer">
+                <div class="custom-slider" data-min="0" data-max="7" data-param="previous_min" id="previousSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Previous contacts</span>
                         <span class="slider-value" id="previousValue">0</span>
@@ -96,7 +96,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="-3.4" data-max="1.4" data-value="0" id="empVarRateSliderContainer">
+                <div class="custom-slider" data-min="-3.4" data-max="1.4" data-param="empvarrate_min" id="empVarRateSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Employment variation rate</span>
                         <span class="slider-value" id="empVarRateValue">0.0</span>
@@ -107,7 +107,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="92.201" data-max="94.767" data-value="93.5" id="consPriceIdxSliderContainer">
+                <div class="custom-slider" data-min="92.201" data-max="94.767" data-param="conspriceidx_min" id="consPriceIdxSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Consumer price index</span>
                         <span class="slider-value" id="consPriceIdxValue">93.5</span>
@@ -118,7 +118,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="-50.8" data-max="-26.9" data-value="-40" id="consConfIdxSliderContainer">
+                <div class="custom-slider" data-min="-50.8" data-max="-26.9" data-param="consconfidx_min" id="consConfIdxSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Consumer confidence index</span>
                         <span class="slider-value" id="consConfIdxValue">-40.0</span>
@@ -129,7 +129,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="0.634" data-max="5.045" data-value="2.0" id="euribor3mSliderContainer">
+                <div class="custom-slider" data-min="0.634" data-max="5.045" data-param="euribor3m_min" id="euribor3mSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Euribor 3-month rate</span>
                         <span class="slider-value" id="euribor3mValue">2.0</span>
@@ -140,7 +140,7 @@
                     </div>
                 </div>
 
-                <div class="custom-slider" data-min="4963.6" data-max="5228.1" data-value="5100" id="nrEmployedSliderContainer">
+                <div class="custom-slider" data-min="4963.6" data-max="5228.1" data-param="nremployed_min" id="nrEmployedSliderContainer">
                     <div class="slider-header">
                         <span class="slider-label">Number of employees</span>
                         <span class="slider-value" id="nrEmployedValue">5100</span>
@@ -152,126 +152,126 @@
                 </div>
 
                 <!-- === CHECKBOXES === -->
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="job">
                     <label class="filter-title">Occupation</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="admin." checked> Admin</label>
-                        <label><input type="checkbox" value="blue-collar"> Blue-collar</label>
-                        <label><input type="checkbox" value="entrepreneur"> Entrepreneur</label>
-                        <label><input type="checkbox" value="housemaid"> Housemaid</label>
-                        <label><input type="checkbox" value="management"> Management</label>
-                        <label><input type="checkbox" value="retired"> Retired</label>
-                        <label><input type="checkbox" value="self-employed"> Self-employed</label>
-                        <label><input type="checkbox" value="services"> Services</label>
-                        <label><input type="checkbox" value="student"> Student</label>
-                        <label><input type="checkbox" value="technician"> Technician</label>
-                        <label><input type="checkbox" value="unemployed"> Unemployed</label>
-                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                        <label><input type="checkbox" data-filter="job" value="admin."> Admin</label>
+                        <label><input type="checkbox" data-filter="job" value="blue-collar"> Blue-collar</label>
+                        <label><input type="checkbox" data-filter="job" value="entrepreneur"> Entrepreneur</label>
+                        <label><input type="checkbox" data-filter="job" value="housemaid"> Housemaid</label>
+                        <label><input type="checkbox" data-filter="job" value="management"> Management</label>
+                        <label><input type="checkbox" data-filter="job" value="retired"> Retired</label>
+                        <label><input type="checkbox" data-filter="job" value="self-employed"> Self-employed</label>
+                        <label><input type="checkbox" data-filter="job" value="services"> Services</label>
+                        <label><input type="checkbox" data-filter="job" value="student"> Student</label>
+                        <label><input type="checkbox" data-filter="job" value="technician"> Technician</label>
+                        <label><input type="checkbox" data-filter="job" value="unemployed"> Unemployed</label>
+                        <label><input type="checkbox" data-filter="job" value="unknown"> Unknown</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="marital">
                     <label class="filter-title">Civil Status</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="divorced"> Divorced</label>
-                        <label><input type="checkbox" value="married"> Married</label>
-                        <label><input type="checkbox" value="single" checked> Single</label>
-                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                        <label><input type="checkbox" data-filter="marital" value="divorced"> Divorced</label>
+                        <label><input type="checkbox" data-filter="marital" value="married"> Married</label>
+                        <label><input type="checkbox" data-filter="marital" value="single"> Single</label>
+                        <label><input type="checkbox" data-filter="marital" value="unknown"> Unknown</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="education">
                     <label class="filter-title">Educational Level</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="basic.4y"> Basic 4y</label>
-                        <label><input type="checkbox" value="basic.6y"> Basic 6y</label>
-                        <label><input type="checkbox" value="basic.9y"> Basic 9y</label>
-                        <label><input type="checkbox" value="high.school"> High school</label>
-                        <label><input type="checkbox" value="illiterate"> Illiterate</label>
-                        <label><input type="checkbox" value="professional.course"> Professional course</label>
-                        <label><input type="checkbox" value="university.degree" checked> University degree</label>
-                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                        <label><input type="checkbox" data-filter="education" value="basic.4y"> Basic 4y</label>
+                        <label><input type="checkbox" data-filter="education" value="basic.6y"> Basic 6y</label>
+                        <label><input type="checkbox" data-filter="education" value="basic.9y"> Basic 9y</label>
+                        <label><input type="checkbox" data-filter="education" value="high.school"> High school</label>
+                        <label><input type="checkbox" data-filter="education" value="illiterate"> Illiterate</label>
+                        <label><input type="checkbox" data-filter="education" value="professional.course"> Professional course</label>
+                        <label><input type="checkbox" data-filter="education" value="university.degree"> University degree</label>
+                        <label><input type="checkbox" data-filter="education" value="unknown"> Unknown</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="default">
                     <label class="filter-title">Credit in default?</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="no" checked> No</label>
-                        <label><input type="checkbox" value="yes"> Yes</label>
-                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                        <label><input type="checkbox" data-filter="default" value="no"> No</label>
+                        <label><input type="checkbox" data-filter="default" value="yes"> Yes</label>
+                        <label><input type="checkbox" data-filter="default" value="unknown"> Unknown</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="housing">
                     <label class="filter-title">Housing loan?</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="no" checked> No</label>
-                        <label><input type="checkbox" value="yes"> Yes</label>
-                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                        <label><input type="checkbox" data-filter="housing" value="no"> No</label>
+                        <label><input type="checkbox" data-filter="housing" value="yes"> Yes</label>
+                        <label><input type="checkbox" data-filter="housing" value="unknown"> Unknown</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="loan">
                     <label class="filter-title">Personal loan?</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="no" checked> No</label>
-                        <label><input type="checkbox" value="yes"> Yes</label>
-                        <label><input type="checkbox" value="unknown"> Unknown</label>
+                        <label><input type="checkbox" data-filter="loan" value="no"> No</label>
+                        <label><input type="checkbox" data-filter="loan" value="yes"> Yes</label>
+                        <label><input type="checkbox" data-filter="loan" value="unknown"> Unknown</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="contact">
                     <label class="filter-title">Contact channel</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="cellular" checked> Cellular</label>
-                        <label><input type="checkbox" value="telephone"> Telephone</label>
+                        <label><input type="checkbox" data-filter="contact" value="cellular"> Cellular</label>
+                        <label><input type="checkbox" data-filter="contact" value="telephone"> Telephone</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="month">
                     <label class="filter-title">Last contact month</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="jan"> Jan</label>
-                        <label><input type="checkbox" value="feb"> Feb</label>
-                        <label><input type="checkbox" value="mar"> Mar</label>
-                        <label><input type="checkbox" value="apr"> Apr</label>
-                        <label><input type="checkbox" value="may"> May</label>
-                        <label><input type="checkbox" value="jun"> Jun</label>
-                        <label><input type="checkbox" value="jul"> Jul</label>
-                        <label><input type="checkbox" value="aug"> Aug</label>
-                        <label><input type="checkbox" value="sep"> Sep</label>
-                        <label><input type="checkbox" value="oct"> Oct</label>
-                        <label><input type="checkbox" value="nov"> Nov</label>
-                        <label><input type="checkbox" value="dec"> Dec</label>
+                        <label><input type="checkbox" data-filter="month" value="jan"> Jan</label>
+                        <label><input type="checkbox" data-filter="month" value="feb"> Feb</label>
+                        <label><input type="checkbox" data-filter="month" value="mar"> Mar</label>
+                        <label><input type="checkbox" data-filter="month" value="apr"> Apr</label>
+                        <label><input type="checkbox" data-filter="month" value="may"> May</label>
+                        <label><input type="checkbox" data-filter="month" value="jun"> Jun</label>
+                        <label><input type="checkbox" data-filter="month" value="jul"> Jul</label>
+                        <label><input type="checkbox" data-filter="month" value="aug"> Aug</label>
+                        <label><input type="checkbox" data-filter="month" value="sep"> Sep</label>
+                        <label><input type="checkbox" data-filter="month" value="oct"> Oct</label>
+                        <label><input type="checkbox" data-filter="month" value="nov"> Nov</label>
+                        <label><input type="checkbox" data-filter="month" value="dec"> Dec</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="day">
                     <label class="filter-title">Day of week</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="mon"> Mon</label>
-                        <label><input type="checkbox" value="tue"> Tue</label>
-                        <label><input type="checkbox" value="wed"> Wed</label>
-                        <label><input type="checkbox" value="thu"> Thu</label>
-                        <label><input type="checkbox" value="fri"> Fri</label>
+                        <label><input type="checkbox" data-filter="day" value="mon"> Mon</label>
+                        <label><input type="checkbox" data-filter="day" value="tue"> Tue</label>
+                        <label><input type="checkbox" data-filter="day" value="wed"> Wed</label>
+                        <label><input type="checkbox" data-filter="day" value="thu"> Thu</label>
+                        <label><input type="checkbox" data-filter="day" value="fri"> Fri</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="poutcome">
                     <label class="filter-title">Previous campaign outcome</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="failure"> Failure</label>
-                        <label><input type="checkbox" value="nonexistent"> Nonexistent</label>
-                        <label><input type="checkbox" value="success"> Success</label>
+                        <label><input type="checkbox" data-filter="poutcome" value="failure"> Failure</label>
+                        <label><input type="checkbox" data-filter="poutcome" value="nonexistent"> Nonexistent</label>
+                        <label><input type="checkbox" data-filter="poutcome" value="success"> Success</label>
                     </div>
                 </div>
 
-                <div class="filter-group">
+                <div class="filter-group" data-filter-group="subscribed">
                     <label class="filter-title">Subscribed?</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="no" checked> No</label>
-                        <label><input type="checkbox" value="yes"> Yes</label>
+                        <label><input type="checkbox" data-filter="subscribed" value="no"> No</label>
+                        <label><input type="checkbox" data-filter="subscribed" value="yes"> Yes</label>
                     </div>
                 </div>
             </div>
@@ -289,17 +289,18 @@
     <!-- Script para sliders con relleno progresivo -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Sliders: store current value in dataset.currentValue ---
             const sliders = [
-                { id: 'ageSliderContainer', min: 17, max: 98, value: 50, decimals: 0 },
-                { id: 'durationSliderContainer', min: 0, max: 4918, value: 1000, decimals: 0 },
-                { id: 'campaignsSliderContainer', min: 1, max: 56, value: 10, decimals: 0 },
-                { id: 'pdaysSliderContainer', min: 0, max: 999, value: 100, decimals: 0 },
-                { id: 'previousSliderContainer', min: 0, max: 7, value: 0, decimals: 0 },
-                { id: 'empVarRateSliderContainer', min: -3.4, max: 1.4, value: 0, decimals: 1 },
-                { id: 'consPriceIdxSliderContainer', min: 92.201, max: 94.767, value: 93.5, decimals: 1 },
-                { id: 'consConfIdxSliderContainer', min: -50.8, max: -26.9, value: -40, decimals: 1 },
-                { id: 'euribor3mSliderContainer', min: 0.634, max: 5.045, value: 2.0, decimals: 1 },
-                { id: 'nrEmployedSliderContainer', min: 4963.6, max: 5228.1, value: 5100, decimals: 0 }
+                { id: 'ageSliderContainer', min: 17, max: 98, decimals: 0 },
+                { id: 'durationSliderContainer', min: 0, max: 4918, decimals: 0 },
+                { id: 'campaignsSliderContainer', min: 1, max: 56, decimals: 0 },
+                { id: 'pdaysSliderContainer', min: 0, max: 999, decimals: 0 },
+                { id: 'previousSliderContainer', min: 0, max: 7, decimals: 0 },
+                { id: 'empVarRateSliderContainer', min: -3.4, max: 1.4, decimals: 1 },
+                { id: 'consPriceIdxSliderContainer', min: 92.201, max: 94.767, decimals: 1 },
+                { id: 'consConfIdxSliderContainer', min: -50.8, max: -26.9, decimals: 1 },
+                { id: 'euribor3mSliderContainer', min: 0.634, max: 5.045, decimals: 1 },
+                { id: 'nrEmployedSliderContainer', min: 4963.6, max: 5228.1, decimals: 0 }
             ];
 
             sliders.forEach(config => {
@@ -323,9 +324,13 @@
                             ? `${formatted} s`
                             : formatted;
                     }
+
+                    // store current numeric value for collectQs
+                    container.dataset.currentValue = String(value);
                 }
 
-                updateSlider(config.value);
+                // initialize at minimum so all data is included at start
+                updateSlider(config.min);
 
                 let isDragging = false;
                 thumb.addEventListener('mousedown', () => isDragging = true);
@@ -339,6 +344,7 @@
                     updateSlider(value);
                 });
 
+                // touch support
                 thumb.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     isDragging = true;
@@ -352,6 +358,105 @@
                     const value = config.min + percent * (config.max - config.min);
                     updateSlider(value);
                 });
+            });
+
+            // --- Filters: checkboxes + sliders combined, no full reload ---
+            const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-filter]'));
+            function collectQs() {
+                const params = new URLSearchParams();
+
+                // checkboxes
+                checkboxes.forEach(cb => {
+                    if (cb.checked) params.append(cb.dataset.filter, cb.value);
+                });
+
+                // sliders: read containers which expose data-param attribute
+                const sliderContainers = Array.from(document.querySelectorAll('.custom-slider[data-param]'));
+                sliderContainers.forEach(c => {
+                    const val = c.dataset.currentValue;
+                    if (val !== undefined) {
+                        // append raw numeric value (server expects e.g. age_min, duration_min)
+                        params.append(c.dataset.param, String(Math.round(Number(val))));
+                    }
+                });
+
+                return params.toString();
+            }
+
+            // debounce + call window.applyFilters (AJAX) and update history
+            let timer = null;
+            const onChange = () => {
+                clearTimeout(timer);
+                timer = setTimeout(async () => {
+                    const qs = collectQs();
+                    if (typeof window.applyFilters === 'function') {
+                        try {
+                            const ok = await window.applyFilters(qs);
+                            if (ok) history.pushState({}, '', '/Dashboard' + (qs ? `?${qs}` : ''));
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    } else {
+                        // fallback
+                        const url = new URL(window.location.href);
+                        url.pathname = '/Dashboard';
+                        url.search = qs;
+                        window.location.href = url.toString();
+                    }
+                }, 120);
+            };
+
+            checkboxes.forEach(cb => cb.addEventListener('change', onChange));
+            // also watch slider releases to trigger filters
+            document.querySelectorAll('.custom-slider').forEach(c => {
+                c.addEventListener('mouseup', onChange);
+                c.addEventListener('touchend', onChange);
+            });
+
+            // initialize from URL (if present) so checkboxes reflect query params; otherwise leave all checked
+            const initFromUrl = () => {
+                const params = new URLSearchParams(window.location.search);
+                const hasAny = Array.from(params.keys()).length > 0;
+                checkboxes.forEach(cb => {
+                    if (!hasAny) cb.checked = true;
+                    else {
+                        const vals = params.getAll(cb.dataset.filter);
+                        cb.checked = vals.includes(cb.value);
+                    }
+                });
+
+                // if URL has slider params, set slider containers currentValue and UI
+                const sliderContainers = Array.from(document.querySelectorAll('.custom-slider[data-param]'));
+                sliderContainers.forEach(c => {
+                    const param = c.dataset.param;
+                    const raw = params.get(param);
+                    if (raw !== null) {
+                        // update visual: reuse updateSlider by finding the config (by id)
+                        const el = c;
+                        const min = Number(el.dataset.min);
+                        const max = Number(el.dataset.max);
+                        const val = Math.max(min, Math.min(max, Number(raw)));
+                        // simulate update function (find thumb and fill)
+                        const fill = el.querySelector('.slider-fill');
+                        const thumb = el.querySelector('.slider-thumb');
+                        const valueSpan = el.querySelector('.slider-value');
+                        const percent = ((val - min) / (max - min)) * 100;
+                        if (fill) fill.style.width = `${percent}%`;
+                        if (thumb) thumb.style.left = `${percent}%`;
+                        if (valueSpan) valueSpan.textContent = el.id.includes('duration') ? `${Math.round(val)} s` : `${Math.round(val)}`;
+                        el.dataset.currentValue = String(val);
+                    }
+                });
+            };
+            initFromUrl();
+
+            // handle back/forward
+            window.addEventListener('popstate', () => {
+                initFromUrl();
+                const qs = window.location.search.replace(/^\?/, '');
+                if (typeof window.applyFilters === 'function') {
+                    window.applyFilters(qs).catch(err => console.error(err));
+                }
             });
         });
     </script>
