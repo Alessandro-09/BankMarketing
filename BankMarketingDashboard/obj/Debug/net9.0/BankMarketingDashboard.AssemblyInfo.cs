@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BankMarketingDashboard")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72f25b9247fde51cd7c323df50254d7ab01f38f9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0f5457a4f6056182b0cd1fb083cefd5059099ad6")]
 [assembly: System.Reflection.AssemblyProductAttribute("BankMarketingDashboard")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BankMarketingDashboard")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -23,7 +23,6 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
     options.MultipartBodyLengthLimit = 200 * 1024 * 1024; // 200 MB
 });
 
-// Opcional: configurar límite máximo del cuerpo de la petición en Kestrel.
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Limits.MaxRequestBodySize = 200 * 1024 * 1024; // 200 MB
@@ -70,5 +69,5 @@ app.MapControllerRoute(
     pattern: "{controller=Dashboard}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-app.MapRazorPages(); // Added mapping for Razor Pages
+app.MapRazorPages(); 
 app.Run();
