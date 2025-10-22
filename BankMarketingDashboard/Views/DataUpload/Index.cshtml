@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "Data Upload";
+}
+
+<div class="container mt-3">
+    <h2>Data Upload</h2>
+
+    <div class="card bg-dark text-light p-3 mb-3">
+        <label class="form-label">Choose CSV file</label>
+        <input id="fileInput" type="file" accept=".csv,text/csv" class="form-control form-control-sm" />
+        <div class="mt-2">
+            <button id="uploadBtn" class="btn btn-primary btn-sm">Upload & Validate</button>
+            <span id="uploadStatus" class="ms-2 text-muted"></span>
+        </div>
+    </div>
+
+    <div id="reportArea" class="mt-3"></div>
+</div>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('fileInput');
+    const btn = document.getElementById('uploadBtn');
+    const status = document.getElementById('uploadStatus');
+    const reportArea = document.getElementById('reportArea');
+
+    btn.addEventListener('click', async () => {
+        reportArea.innerHTML = '';
+        const file = fileInput.files[0];
+        if (!file) {
+            status.textContent = 'Select a CSV file first.';
+            return;
+        }
+        status.textContent = 'Uploading...';
+        const fd = new FormData();
+        fd.append('file', file);
+
+        try {
+            const res = await fetch('/DataUpload/Upload', { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ error: 'upload failed' }));
+                status.textContent = err?.error ?? 'Upload failed';
+                return;
+            }
+            const report = await res.json();
+            status.textContent = 'Validation completed';
+            renderReport(report);
+        } catch (e) {
+            status.textContent = 'Error: ' + e.message;
+        }
+    });
+
+    function renderReport(r) {
+        if (!r) { reportArea.textContent = 'No report.'; return; }
+        if (r.error) {
+            reportArea.innerHTML = `<div class="alert alert-danger">${r.error}</div>`;
+            return;
+        }
+
+        let html = `<h4>Report: ${r.fileName ?? ''}</h4>`;
+        html += `<p>Detected at: ${new Date(r.detectedAt).toLocaleString()}</p>`;
+        html += `<p>Rows: ${r.rowCount}, Columns: ${r.columnCount}, Duplicates: ${r.duplicateRows}</p>`;
+
+        html += '<h5>Columns</h5><table class="table table-sm table-dark"><thead><tr><th>Column</th><th>Type</th><th>Non-null</th><th>Nulls</th><th>Distinct</th><th>Sample</th></tr></thead><tbody>';
+        (r.columns || []).forEach(c => {
+            const sample = (c.sampleValues || []).slice(0,5).map(v => escapeHtml(v)).join('<br/>');
+            html += `<tr><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.inferredType)}</td><td>${c.nonNullCount}</td><td>${c.nullCount}</td><td>${c.distinctCount}</td><td>${sample}</td></tr>`;
+        });
+        html += '</tbody></table>';
+
+        if (r.sampleRecords && r.sampleRecords.length) {
+            html += '<h5>Sample records</h5><div class="table-responsive"><table class="table table-sm table-dark"><thead><tr>';
+            (r.columns || []).forEach(c => html += `<th>${escapeHtml(c.name)}</th>`);
+            html += '</tr></thead><tbody>';
+            r.sampleRecords.forEach(row => {
+                html += '<tr>';
+                (row || []).forEach(cell => html += `<td>${escapeHtml(cell ?? '')}</td>`);
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+        }
+
+        reportArea.innerHTML = html;
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+});
+</script>
+}

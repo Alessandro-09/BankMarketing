@@ -148,31 +148,43 @@ namespace BankMarketingDashboard.Controllers
                 return new ChartPoint { Label = d, Value = rate };
             }).ToList();
 
-            // boxplot
-            var durationsYes = data.Where(r => r.Y == "yes").Select(r => r.Duration).ToList();
-            var durationsNo = data.Where(r => r.Y != "yes").Select(r => r.Duration).ToList();
+            // --- typed boxplot, poutcome and campaign data (replace previous anonymous code) ---
 
-            List<object> boxplotData = new List<object>();
+            // boxplot (typed)
+            var durationsYes = data.Where(r => r.Y == "yes").Select(r => r.Duration).OrderBy(v => v).ToList();
+            var durationsNo = data.Where(r => r.Y != "yes").Select(r => r.Duration).OrderBy(v => v).ToList();
+
+            var boxplotData = new List<BoxplotPoint>();
             foreach (var pair in new[] { new { Label = "yes", Values = durationsYes }, new { Label = "no", Values = durationsNo } })
             {
-                var vals = pair.Values.OrderBy(v => v).ToList();
-                if (vals.Count == 0)
+                var vals = pair.Values;
+                if (vals == null || vals.Count == 0)
                 {
-                    boxplotData.Add(new { label = pair.Label, min = 0, q1 = 0, median = 0, q3 = 0, max = 0 });
+                    boxplotData.Add(new BoxplotPoint { Label = pair.Label, Min = 0, Q1 = 0, Median = 0, Q3 = 0, Max = 0 });
                     continue;
                 }
+
                 var min = vals.First();
                 var max = vals.Last();
                 var q1 = Percentile(vals, 25);
                 var median = Percentile(vals, 50);
                 var q3 = Percentile(vals, 75);
-                boxplotData.Add(new { label = pair.Label, min, q1, median, q3, max });
+
+                boxplotData.Add(new BoxplotPoint
+                {
+                    Label = pair.Label,
+                    Min = q1 < min ? min : min, // keep original min/max but you can customize
+                    Q1 = q1,
+                    Median = median,
+                    Q3 = q3,
+                    Max = max
+                });
             }
 
-            // poutcomeGroups
+            // poutcomeGroups (typed)
             var poutcomeGroups = data
                 .GroupBy(r => r.Poutcome)
-                .Select(g => new
+                .Select(g => new PoutcomePoint
                 {
                     Label = g.Key ?? "unknown",
                     Yes = g.Count(r => r.Y == "yes"),
@@ -180,18 +192,17 @@ namespace BankMarketingDashboard.Controllers
                 })
                 .ToList();
 
-            // campaignGroups
+            // campaignGroups (typed)
             var campaignGroups = data
                 .GroupBy(r => r.Campaign)
                 .OrderBy(g => g.Key)
-                .Select(g =>
-                    new
-                    {
-                        Campaign = g.Key,
-                        ConversionRate = g.Count() > 0 ? Math.Round(g.Count(r => r.Y == "yes") * 100.0 / g.Count(), 2) : 0.0,
-                        Total = g.Count()
-                    }
-                ).ToList();
+                .Select(g => new CampaignPoint
+                {
+                    Campaign = g.Key,
+                    ConversionRate = g.Count() > 0 ? Math.Round(g.Count(r => r.Y == "yes") * 100.0 / g.Count(), 2) : 0.0,
+                    Total = g.Count()
+                })
+                .ToList();
 
             // age ranges + conversionByAge
             var ageRanges = new[]

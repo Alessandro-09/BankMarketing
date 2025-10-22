@@ -284,12 +284,15 @@
     </div>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
     <!-- Script para sliders con relleno progresivo -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Sliders: store current value in dataset.currentValue ---
+            // --- Deslizadores: almacenar el valor actual en dataset.currentValue ---
             const sliders = [
                 { id: 'ageSliderContainer', min: 17, max: 98, decimals: 0 },
                 { id: 'durationSliderContainer', min: 0, max: 4918, decimals: 0 },
@@ -325,11 +328,11 @@
                             : formatted;
                     }
 
-                    // store current numeric value for collectQs
+                    // almacenar el valor numérico actual para collectQs
                     container.dataset.currentValue = String(value);
                 }
 
-                // initialize at minimum so all data is included at start
+                // inicializar en el mínimo para que al inicio se incluyan todos los datos
                 updateSlider(config.min);
 
                 let isDragging = false;
@@ -344,7 +347,7 @@
                     updateSlider(value);
                 });
 
-                // touch support
+                // soporte táctil
                 thumb.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     isDragging = true;
@@ -360,7 +363,7 @@
                 });
             });
 
-            // --- Filters: checkboxes + sliders combined, no full reload ---
+            // --- Filtros: checkboxes + deslizadores combinados, sin recarga completa ---
             const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-filter]'));
             function collectQs() {
                 const params = new URLSearchParams();
@@ -370,12 +373,12 @@
                     if (cb.checked) params.append(cb.dataset.filter, cb.value);
                 });
 
-                // sliders: read containers which expose data-param attribute
+                // deslizadores: leer contenedores que exponen el atributo data-param
                 const sliderContainers = Array.from(document.querySelectorAll('.custom-slider[data-param]'));
                 sliderContainers.forEach(c => {
                     const val = c.dataset.currentValue;
                     if (val !== undefined) {
-                        // append raw numeric value (server expects e.g. age_min, duration_min)
+                        // append raw numeric value (el servidor espera p.ej. age_min, duration_min)
                         params.append(c.dataset.param, String(Math.round(Number(val))));
                     }
                 });
@@ -383,7 +386,7 @@
                 return params.toString();
             }
 
-            // debounce + call window.applyFilters (AJAX) and update history
+            // debounce + invocar window.applyFilters (AJAX) y actualizar el historial
             let timer = null;
             const onChange = () => {
                 clearTimeout(timer);
@@ -397,7 +400,7 @@
                             console.error(e);
                         }
                     } else {
-                        // fallback
+                        // fallback: recarga completa si no existe la función AJAX
                         const url = new URL(window.location.href);
                         url.pathname = '/Dashboard';
                         url.search = qs;
@@ -407,13 +410,13 @@
             };
 
             checkboxes.forEach(cb => cb.addEventListener('change', onChange));
-            // also watch slider releases to trigger filters
+            // también vigilar la liberación de los deslizadores para activar filtros
             document.querySelectorAll('.custom-slider').forEach(c => {
                 c.addEventListener('mouseup', onChange);
                 c.addEventListener('touchend', onChange);
             });
 
-            // initialize from URL (if present) so checkboxes reflect query params; otherwise leave all checked
+            // inicializar desde la URL (si existe) para que los checkboxes reflejen los parámetros; si no, dejar todos marcados
             const initFromUrl = () => {
                 const params = new URLSearchParams(window.location.search);
                 const hasAny = Array.from(params.keys()).length > 0;
@@ -425,18 +428,18 @@
                     }
                 });
 
-                // if URL has slider params, set slider containers currentValue and UI
+                // si la URL contiene parámetros de sliders, establecer dataset.currentValue y actualizar la UI
                 const sliderContainers = Array.from(document.querySelectorAll('.custom-slider[data-param]'));
                 sliderContainers.forEach(c => {
                     const param = c.dataset.param;
                     const raw = params.get(param);
                     if (raw !== null) {
-                        // update visual: reuse updateSlider by finding the config (by id)
+                        // actualizar visual: reutiliza la lógica de update simulada (buscar thumb y fill)
                         const el = c;
                         const min = Number(el.dataset.min);
                         const max = Number(el.dataset.max);
                         const val = Math.max(min, Math.min(max, Number(raw)));
-                        // simulate update function (find thumb and fill)
+                        // simular actualización visual
                         const fill = el.querySelector('.slider-fill');
                         const thumb = el.querySelector('.slider-thumb');
                         const valueSpan = el.querySelector('.slider-value');
@@ -450,7 +453,7 @@
             };
             initFromUrl();
 
-            // handle back/forward
+            // manejar retroceso/avance del historial
             window.addEventListener('popstate', () => {
                 initFromUrl();
                 const qs = window.location.search.replace(/^\?/, '');

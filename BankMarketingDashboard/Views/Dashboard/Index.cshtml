@@ -3,12 +3,14 @@
     ViewData["Title"] = "Reports";
 
     // KPIs
+    // Variables con indicadores clave calculados en el controlador.
     var totalContacts = ViewBag.TotalContacts as int? ?? 0;
     var conversionRate = ViewBag.ConversionRate as double? ?? 0;
     var avgDuration = ViewBag.AvgDuration as double? ?? 0;
     var successfulCalls = ViewBag.SuccessfulCalls as int? ?? 0;
 
-    // Existing datasets
+    // Conjuntos de datos recibidos desde el servidor (ViewBag).
+    // Se esperan listas ya agregadas y agregadas/normalizadas por el controlador.
     var maritalData = ViewBag.MaritalData as List<ChartPoint> ?? new List<ChartPoint>();
     var jobData = ViewBag.JobData as List<ChartPoint> ?? new List<ChartPoint>();
     var educationData = ViewBag.EducationData as List<ChartPoint> ?? new List<ChartPoint>();
@@ -16,7 +18,7 @@
     var ageData = ViewBag.AgeData as List<ChartPoint> ?? new List<ChartPoint>();
     var conversionByAge = ViewBag.ConversionByAge as List<ChartPoint> ?? new List<ChartPoint>();
 
-    // New concrete datasets
+    // Conjuntos concretos para gráficos adicionales (tipados).
     var defaultData = ViewBag.DefaultData as List<ChartPoint> ?? new List<ChartPoint>();
     var housingData = ViewBag.HousingData as List<ChartPoint> ?? new List<ChartPoint>();
     var loanData = ViewBag.LoanData as List<ChartPoint> ?? new List<ChartPoint>();
@@ -28,9 +30,14 @@
 }
 
 <div class="dashboard-container">
-    <h2>Marketing Campaign Dashboard</h2>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="mb-0">Marketing Campaign Dashboard</h2>
+        <div>
+            <button id="exportPdfBtn" class="btn btn-outline-light btn-sm me-2">Export PDF</button>
+        </div>
+    </div>
 
-    <!-- KPIs compactos -->
+    <!-- KPI resumen -->
     <div class="kpi-cards mb-4" role="region" aria-label="KPIs principales">
         <div class="card kpi-card">
             <div class="card-body">
@@ -73,9 +80,10 @@
         </div>
     </div>
 
-    <!-- Gráficos originales + nuevos: todos los canvases -->
+    <!-- Contenedores de gráficos -->
     <div class="row">
-        <!-- Originales -->
+
+        <!-- Civil Status Distribution -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
                 <h5 class="chart-title">Civil Status Distribution</h5>
@@ -83,6 +91,7 @@
             </div>
         </div>
 
+        <!-- Occupation Distribution -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
                 <h5 class="chart-title">Occupation Distribution</h5>
@@ -90,6 +99,7 @@
             </div>
         </div>
 
+        <!-- Education Level -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
                 <h5 class="chart-title">Education Level</h5>
@@ -97,6 +107,7 @@
             </div>
         </div>
 
+        <!-- Contact Channel -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
                 <h5 class="chart-title">Contact Channel</h5>
@@ -104,6 +115,7 @@
             </div>
         </div>
 
+        <!-- Age Distribution -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
                 <h5 class="chart-title">Age Distribution</h5>
@@ -111,6 +123,7 @@
             </div>
         </div>
 
+        <!-- Conversion Rate by Age Group -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
                 <h5 class="chart-title">Conversion Rate by Age Group</h5>
@@ -118,59 +131,66 @@
             </div>
         </div>
 
-        <!-- Nuevos solicitados -->
+        <!-- Credit in default -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Default (comparativa)</h5>
+                <h5 class="chart-title">Credit in default</h5>
                 <canvas id="defaultChart"></canvas>
             </div>
         </div>
 
+        <!-- Housing Loan -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Housing (comparativa)</h5>
+                <h5 class="chart-title">Housing Loan</h5>
                 <canvas id="housingChart"></canvas>
             </div>
         </div>
 
+        <!-- Personal Loan -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Loan (comparativa)</h5>
+                <h5 class="chart-title">Personal Loan</h5>
                 <canvas id="loanChart"></canvas>
             </div>
         </div>
 
+        <!-- Monthly conversion trend -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Mes vs Tasa de conversión</h5>
+                <h5 class="chart-title">Monthly Conversion Rate Trend</h5>
                 <canvas id="monthConvChart"></canvas>
             </div>
         </div>
 
+        <!-- Weekday heatmap simplified -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Día de la semana - Heatmap (tasa de conversión)</h5>
+                <h5 class="chart-title">Weekday Conversion Rate Heatmap</h5>
                 <canvas id="dayHeatmap"></canvas>
             </div>
         </div>
 
+        <!-- Call duration distribution -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Duración (boxplot) yes vs no</h5>
+                <h5 class="chart-title">Call Duration Distribution by Outcome</h5>
                 <canvas id="durationBoxplot"></canvas>
             </div>
         </div>
 
+        <!-- Previous campaign outcome -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Poutcome vs Y (apilado)</h5>
+                <h5 class="chart-title">Previous Campaign Outcome vs Subscription</h5>
                 <canvas id="poutcomeStacked"></canvas>
             </div>
         </div>
 
+        <!-- Campaign scatter/bubble -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
-                <h5 class="chart-title">Campaign vs Tasa de conversión (scatter)</h5>
+                <h5 class="chart-title">Campaign Contact Count vs Conversion Rate</h5>
                 <canvas id="campaignScatter"></canvas>
             </div>
         </div>
@@ -183,100 +203,142 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.0/dist/chartjs-chart-matrix.min.js"></script>
 
     <script data-dash-init>
-        // signal for init completion (used by AJAX caller)
-        window.__dash_init_done = false;
-        window.__dash_init_error = null;
-        console.debug('[dash] init start');
+
+        // ----------------------------
+        // SERIALIZACIÓN DE DATOS (server -> cliente)
+        // ----------------------------
+
+        // Aquí convertimos las colecciones Razor en literales JS.
+        const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label ?? "Unknown").ToArray()));
+        const maritalValues = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Value).ToArray()));
+
+        const jobLabels = @Html.Raw(Json.Serialize(jobData.Select(j => j.Label ?? "Unknown").ToArray()));
+        const jobValues = @Html.Raw(Json.Serialize(jobData.Select(j => j.Value).ToArray()));
+
+        const educationLabels = @Html.Raw(Json.Serialize(educationData.Select(e => e.Label ?? "Unknown").ToArray()));
+        const educationValues = @Html.Raw(Json.Serialize(educationData.Select(e => e.Value).ToArray()));
+
+        const contactLabels = @Html.Raw(Json.Serialize(contactData.Select(c => c.Label ?? "Unknown").ToArray()));
+        const contactValues = @Html.Raw(Json.Serialize(contactData.Select(c => c.Value).ToArray()));
+
+        const ageLabels = @Html.Raw(Json.Serialize(ageData.Select(a => a.Label).ToArray()));
+        const ageValues = @Html.Raw(Json.Serialize(ageData.Select(a => a.Value).ToArray()));
+
+        const conversionAgeLabels = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Label).ToArray()));
+        const conversionAgeValues = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Value).ToArray()));
+
+        const defaultLabels = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Label).ToArray()));
+        const defaultValues = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Value).ToArray()));
+
+        const housingLabels = @Html.Raw(Json.Serialize(housingData.Select(d => d.Label).ToArray()));
+        const housingValues = @Html.Raw(Json.Serialize(housingData.Select(d => d.Value).ToArray()));
+
+        const loanLabels = @Html.Raw(Json.Serialize(loanData.Select(d => d.Label).ToArray()));
+        const loanValues = @Html.Raw(Json.Serialize(loanData.Select(d => d.Value).ToArray()));
+
+        const monthLabels = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Label).ToArray()));
+        const monthValues = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Value).ToArray()));
+
+        const dayLabels = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Label).ToArray()));
+        const dayValues = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Value).ToArray()));
+
+        const boxplotRaw = @Html.Raw(Json.Serialize(boxplotData));
+        const poutcomeRaw = @Html.Raw(Json.Serialize(poutcomeStack));
+        const campaignRaw = @Html.Raw(Json.Serialize(campaignScatter));
+
+        // depuración
+        console.debug('DATA LENGTHS', {
+            boxplot: (boxplotRaw || []).length,
+            poutcome: (poutcomeRaw || []).length,
+            campaign: (campaignRaw || []).length
+        });
+
+        // ----------------------------
+        // UTILIDADES COMUNES
+        // ----------------------------
+
+        // Muestra texto cuando falta información para un gráfico.
+        function showNoDataFor(canvasId, msg) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const container = canvas.closest('.chart-container');
+            if (!container) return;
+            if (container.querySelector('.no-data')) return;
+            const el = document.createElement('div');
+            el.className = 'no-data mt-2 text-muted';
+            el.textContent = msg || 'No data to display';
+            container.appendChild(el);
+        }
+
+        // Formateador numérico (US) para tooltips y textos compactos.
+        const numberFormatter = new Intl.NumberFormat('en-US');
+
+        // Convierte arrays heterogéneos a números seguros.
+        function safeNumbers(arr) {
+            if (!Array.isArray(arr)) return [];
+            return arr.map(v => {
+                const n = Number(v);
+                return Number.isFinite(n) ? n : 0;
+            });
+        }
+
+        // Crea un chart y guarda instancia para destrucción posterior.
+        function initChart(canvasId, factory) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            try {
+                const cfg = factory(ctx);
+                const chart = new Chart(ctx, cfg);
+                canvas._chartInstance = chart;
+                return chart;
+            } catch (e) {
+                // Si falla la creación, mostrar aviso y no interrumpir el resto.
+                console.error('Error creating chart', canvasId, e);
+                showNoDataFor(canvasId, 'Chart failed to render');
+                return null;
+            }
+        }
+
+        // Destruye instancias previas para evitar errores "canvas in use".
+        function destroyIfExists(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            try {
+                const reg = (window.Chart && typeof Chart.getChart === 'function') ? Chart.getChart(el) : null;
+                if (reg) { try { reg.destroy(); } catch (e) { console.warn('destroy registered chart failed', e); } }
+            } catch (e) {  }
+            if (el._chartInstance) {
+                try { el._chartInstance.destroy(); } catch (e) { console.warn('destroy _chartInstance failed', e); }
+                el._chartInstance = null;
+            }
+            try { el.removeAttribute && el.removeAttribute('data-chartjs'); } catch (e) {}
+        }
+
+        // Opciones comunes para la mayoría de gráficos (estética y comportamiento)
+        const commonOpts = {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'nearest', intersect: false },
+            plugins: {
+                legend: { labels: { color: 'white' } },
+                tooltip: { callbacks: { label: ctx => {
+                    if (ctx.raw && typeof ctx.raw === 'object' && ctx.raw.v !== undefined) return `${numberFormatter.format(ctx.raw.v)}%`;
+                    return numberFormatter.format(ctx.raw);
+                } } }
+            },
+            scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
+        };
+
+        // ----------------------------
+        // RENDERIZADO DE GRÁFICOS
+        // ----------------------------
 
         try {
-            // Serialize datasets (server -> JS)
-            const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label ?? "Unknown").ToArray()));
-            const maritalValues = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Value).ToArray()));
-
-            const jobLabels = @Html.Raw(Json.Serialize(jobData.Select(j => j.Label ?? "Unknown").ToArray()));
-            const jobValues = @Html.Raw(Json.Serialize(jobData.Select(j => j.Value).ToArray()));
-
-            const educationLabels = @Html.Raw(Json.Serialize(educationData.Select(e => e.Label ?? "Unknown").ToArray()));
-            const educationValues = @Html.Raw(Json.Serialize(educationData.Select(e => e.Value).ToArray()));
-
-            const contactLabels = @Html.Raw(Json.Serialize(contactData.Select(c => c.Label ?? "Unknown").ToArray()));
-            const contactValues = @Html.Raw(Json.Serialize(contactData.Select(c => c.Value).ToArray()));
-
-            const ageLabels = @Html.Raw(Json.Serialize(ageData.Select(a => a.Label).ToArray()));
-            const ageValues = @Html.Raw(Json.Serialize(ageData.Select(a => a.Value).ToArray()));
-
-            const conversionAgeLabels = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Label).ToArray()));
-            const conversionAgeValues = @Html.Raw(Json.Serialize(conversionByAge.Select(c => c.Value).ToArray()));
-
-            const defaultLabels = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Label).ToArray()));
-            const defaultValues = @Html.Raw(Json.Serialize(defaultData.Select(d => d.Value).ToArray()));
-
-            const housingLabels = @Html.Raw(Json.Serialize(housingData.Select(d => d.Label).ToArray()));
-            const housingValues = @Html.Raw(Json.Serialize(housingData.Select(d => d.Value).ToArray()));
-
-            const loanLabels = @Html.Raw(Json.Serialize(loanData.Select(d => d.Label).ToArray()));
-            const loanValues = @Html.Raw(Json.Serialize(loanData.Select(d => d.Value).ToArray()));
-
-            const monthLabels = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Label).ToArray()));
-            const monthValues = @Html.Raw(Json.Serialize(monthConversion.Select(m => m.Value).ToArray()));
-
-            const dayLabels = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Label).ToArray()));
-            const dayValues = @Html.Raw(Json.Serialize(dayConversion.Select(d => d.Value).ToArray()));
-
-            const boxplotRaw = @Html.Raw(Json.Serialize(boxplotData));
-            const poutcomeRaw = @Html.Raw(Json.Serialize(poutcomeStack));
-            const campaignRaw = @Html.Raw(Json.Serialize(campaignScatter));
-
-            // Helpers
-            const numberFormatter = new Intl.NumberFormat('en-US');
-
-            function safeNumbers(arr) {
-                if (!Array.isArray(arr)) return [];
-                return arr.map(v => {
-                    const n = Number(v);
-                    return Number.isFinite(n) ? n : 0;
-                });
-            }
-
-            function initChart(canvasId, factory) {
-                const canvas = document.getElementById(canvasId);
-                if (!canvas) return null;
-                const ctx = canvas.getContext('2d');
-                try {
-                    const cfg = factory(ctx);
-                    const chart = new Chart(ctx, cfg);
-                    canvas._chartInstance = chart;
-                    return chart;
-                } catch (e) {
-                    console.error('Error creating chart', canvasId, e);
-                    return null;
-                }
-            }
-
-            function destroyIfExists(id) {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (el._chartInstance) {
-                    try { el._chartInstance.destroy(); } catch (e) { console.warn(e); }
-                    el._chartInstance = null;
-                }
-            }
-
-            const commonOpts = {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'nearest', intersect: false },
-                plugins: {
-                    legend: { labels: { color: 'white' } },
-                    tooltip: { callbacks: { label: ctx => {
-                        if (ctx.raw && typeof ctx.raw === 'object' && ctx.raw.v !== undefined) return `${numberFormatter.format(ctx.raw.v)}%`;
-                        return numberFormatter.format(ctx.raw);
-                    } } }
-                },
-                scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
-            };
-
-            // Render charts (destroy prior instances first)
+            // Civil Status Distribution
+            // proporciones por estado civil
+            // Contiene: etiquetas 'marital' y conteos
+            // Tipo: doughnut.
             destroyIfExists('maritalChart');
             initChart('maritalChart', ctx => ({
                 type: 'doughnut',
@@ -284,6 +346,10 @@
                 options: { ...commonOpts, plugins: { ...commonOpts.plugins, legend: { position: 'right' } } }
             }));
 
+            // Occupation Distribution
+            // recuento por ocupación
+            // Contiene: etiquetas 'job' y valores
+            // Tipo: barra vertical.
             destroyIfExists('jobChart');
             initChart('jobChart', ctx => ({
                 type: 'bar',
@@ -291,6 +357,10 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Education Level
+            // recuentos por nivel educativo
+            // Contiene: etiquetas 'education' y valores
+            // Tipo: barra horizontal.
             destroyIfExists('educationChart');
             initChart('educationChart', ctx => ({
                 type: 'bar',
@@ -298,6 +368,10 @@
                 options: { ...commonOpts, indexAxis: 'y', scales: { x: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Contact Channel
+            // distribución por canal (cellular/telephone)
+            // Contiene: etiquetas 'contact' y valores
+            // Tipo: barra.
             destroyIfExists('contactChart');
             initChart('contactChart', ctx => ({
                 type: 'bar',
@@ -305,6 +379,10 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Age Distribution
+            // distribución de contactos por rango de edad
+            // Contiene: etiquetas de rango y conteos
+            // Tipo: barra.
             destroyIfExists('ageChart');
             initChart('ageChart', ctx => ({
                 type: 'bar',
@@ -312,6 +390,10 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Conversion Rate by Age Group
+            // tasa de conversión (%) por grupo de edad
+            // Contiene: etiquetas de edad y porcentaje
+            // Tipo: barra.
             destroyIfExists('conversionAgeChart');
             initChart('conversionAgeChart', ctx => ({
                 type: 'bar',
@@ -319,6 +401,10 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { callback: v => v + '%' } } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Credit in default
+            // comparación por estado de 'default' (yes/no/unknown)
+            // Contiene: etiquetas y conteos
+            // Tipo: barra.
             destroyIfExists('defaultChart');
             initChart('defaultChart', ctx => ({
                 type: 'bar',
@@ -326,6 +412,10 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Housing Loan
+            // comparación por housing (yes/no/unknown)
+            // Contiene: etiquetas y conteos
+            // Tipo: barra.
             destroyIfExists('housingChart');
             initChart('housingChart', ctx => ({
                 type: 'bar',
@@ -333,6 +423,10 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Personal Loan
+            // comparación por loan (yes/no/unknown)
+            // Contiene: etiquetas y conteos
+            // Tipo: barra.
             destroyIfExists('loanChart');
             initChart('loanChart', ctx => ({
                 type: 'bar',
@@ -340,6 +434,10 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } }
             }));
 
+            // Monthly Conversion Rate Trend
+            // tendencia mensual de la tasa de conversión
+            // Contiene: meses y porcentaje
+            // Tipo: línea.
             destroyIfExists('monthConvChart');
             initChart('monthConvChart', ctx => ({
                 type: 'line',
@@ -347,83 +445,110 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, tooltip: { callbacks: { label: ctx => `${numberFormatter.format(ctx.raw)}%` } } } }
             }));
 
-            // Day heatmap (matrix)
+            // Weekday Conversion Rate 
+            // muestra la tasa de conversión por día de la semana con una barra horizontal coloreada.
+            // Contiene: etiquetas día (mon..fri) y porcentaje
+            // Tipo: barra horizontal con gradiente por valor.
+            destroyIfExists('dayHeatmap');
             (function () {
-                destroyIfExists('dayHeatmap');
                 const canvas = document.getElementById('dayHeatmap');
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
-                const cells = (dayValues || []).map((v, i) => ({ x: 0, y: i, v: Number(v) || 0 }));
-                if (!cells.length) return;
+
+                const labels = (dayLabels || []).slice();
+                const values = safeNumbers(dayValues || []);
+                if (!labels.length || values.length === 0) { showNoDataFor('dayHeatmap'); return; }
+
+                const maxVal = Math.max(...values, 1);
+                function colorForValue(v) { const pct = Math.max(0, Math.min(1, v / maxVal)); const hue = Math.round(60 + (140 - 60) * pct); const sat = Math.round(55 + 30 * pct); const light = Math.round(88 - 40 * pct); return `hsl(${hue} ${sat}% ${light}%)`; }
+                function textColorForValue(v) { return (v / maxVal) > 0.6 ? '#022' : '#fff'; }
+
+                const barLabelPlugin = {
+                    id: 'barLabelPlugin',
+                    afterDatasetDraw(chart) {
+                        const dataset = chart.data.datasets[0];
+                        const meta = chart.getDatasetMeta(0);
+                        const ctx = chart.ctx;
+                        ctx.save();
+                        meta.data.forEach((bar, index) => {
+                            const v = dataset.data[index] ?? 0;
+                            const text = `${v}%`;
+                            const fontSize = Math.max(10, Math.round(bar.height * 0.4));
+                            ctx.font = `${fontSize}px "Helvetica", "Arial", sans-serif`;
+                            ctx.textBaseline = 'middle';
+                            const padding = 6;
+                            const insideX = bar.x - padding;
+                            const outsideX = bar.x + padding;
+                            const y = bar.y;
+                            const w = ctx.measureText(text).width;
+                            const insideAvailable = insideX - (bar.base || 0) > w + 8;
+                            ctx.fillStyle = insideAvailable ? textColorForValue(v) : '#fff';
+                            const x = insideAvailable ? insideX - w : outsideX;
+                            ctx.fillText(text, x, y);
+                        });
+                        ctx.restore();
+                    }
+                };
+
+                const bgColors = values.map(colorForValue);
                 const chart = new Chart(ctx, {
-                    type: 'matrix',
-                    data: {
-                        datasets: [{
-                            label: 'Conversion rate by day',
-                            data: cells,
-                            backgroundColor(context) {
-                                const value = context.dataset.data[context.dataIndex].v;
-                                const pct = Math.max(0, Math.min(1, value / 100));
-                                const r = Math.round(30 + 200 * pct);
-                                const g = Math.round(30 + 120 * (1 - pct));
-                                const b = Math.round(60 + 60 * (1 - pct));
-                                return `rgb(${r},${g},${b})`;
-                            },
-                            width: () => 40,
-                            height: ({ chart }) => Math.max(30, Math.floor(chart.height / Math.max(1, dayValues.length)) - 6)
-                        }]
-                    },
+                    type: 'bar',
+                    data: { labels, datasets: [{ label: 'Conversion rate (%)', data: values, backgroundColor: bgColors, borderColor: 'rgba(0,0,0,0.08)', borderWidth: 1, maxBarThickness: 48 }] },
                     options: {
-                        parsing: false,
+                        indexAxis: 'y',
                         responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { beginAtZero: true, ticks: { callback: v => `${v}%`, color: 'white' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                            y: { ticks: { color: 'white' }, grid: { display: false } }
+                        },
                         plugins: {
                             legend: { display: false },
-                            tooltip: { callbacks: { label: ctx => `${dayLabels[ctx.dataIndex]}: ${numberFormatter.format(ctx.raw.v)}%` } }
+                            tooltip: { callbacks: { label: ctx => { const day = ctx.label ?? ''; const val = ctx.parsed.x ?? 0; return `${day}: ${numberFormatter.format(val)}%`; } } }
                         },
-                        scales: { x: { display: false }, y: { ticks: { callback: (val, index) => dayLabels[index], color: 'white' }, reverse: true } },
                         interaction: { mode: 'nearest', intersect: false }
-                    }
+                    },
+                    plugins: [barLabelPlugin]
                 });
                 canvas._chartInstance = chart;
             })();
 
-            // Boxplot
+            // Call Duration distribution
+            // resume la distribución de la duración por resultado (yes/no)
+            // Contiene: min, Q1, median, Q3, max
+            // Tipo: boxplot (si plugin disponible) o barra de medianas como fallback.
+            destroyIfExists('durationBoxplot');
             (function () {
-                destroyIfExists('durationBoxplot');
                 const canvas = document.getElementById('durationBoxplot');
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
                 const labels = (boxplotRaw || []).map(b => b.label ?? b.Label ?? '');
-                const data = (boxplotRaw || []).map(b => [
-                    Number(b.min ?? b.Min ?? 0),
-                    Number(b.q1 ?? b.Q1 ?? 0),
-                    Number(b.median ?? b.Median ?? 0),
-                    Number(b.q3 ?? b.Q3 ?? 0),
-                    Number(b.max ?? b.Max ?? 0)
-                ]);
-                if (!labels.length) return;
-                const chart = new Chart(ctx, {
-                    type: 'boxplot',
-                    data: { labels, datasets: [{ label: 'Duration (s)', backgroundColor: '#4e73df', borderColor: '#081028', data }] },
-                    options: {
-                        ...commonOpts,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: t => {
-                                const arr = t.raw || [];
-                                return `Min ${numberFormatter.format(arr[0])}, Q1 ${numberFormatter.format(arr[1])}, Median ${numberFormatter.format(arr[2])}, Q3 ${numberFormatter.format(arr[3])}, Max ${numberFormatter.format(arr[4])}`;
-                            } } }
-                        },
-                        scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' }, beginAtZero: true } },
-                        interaction: { mode: 'nearest', intersect: false }
-                    }
-                });
-                canvas._chartInstance = chart;
+                try {
+                    const data = (boxplotRaw || []).map(b => [ Number(b.min ?? b.Min ?? 0), Number(b.q1 ?? b.Q1 ?? 0), Number(b.median ?? b.Median ?? 0), Number(b.q3 ?? b.Q3 ?? 0), Number(b.max ?? b.Max ?? 0) ]);
+                    if (!labels.length || data.every(d => d.every(v => v === 0))) { showNoDataFor('durationBoxplot'); return; }
+                    const chart = new Chart(ctx, {
+                        type: 'boxplot',
+                        data: { labels, datasets: [{ label: 'Duration (s)', backgroundColor: '#4e73df', borderColor: '#081028', data }] },
+                        options: { ...commonOpts, plugins: { legend: { display: false }, tooltip: { callbacks: { label: t => { const arr = t.raw || []; return `Min ${numberFormatter.format(arr[0])}, Q1 ${numberFormatter.format(arr[1])}, Median ${numberFormatter.format(arr[2])}, Q3 ${numberFormatter.format(arr[3])}, Max ${numberFormatter.format(arr[4])}`; } } } }, scales: { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' }, beginAtZero: true } }, interaction: { mode: 'nearest', intersect: false } }
+                    });
+                    canvas._chartInstance = chart;
+                } catch (err) {
+                    console.warn('Boxplot plugin not available or failed, fallback a mediana.', err);
+                    try { const reg = (window.Chart && typeof Chart.getChart === 'function') ? Chart.getChart(canvas) : null; if (reg) reg.destroy(); } catch (e) {}
+                    canvas._chartInstance = null;
+                    const medians = (boxplotRaw || []).map(b => { const m = Number(b.median ?? b.Median ?? 0); return Number.isFinite(m) ? m : 0; });
+                    if (!labels.length || medians.length === 0) { showNoDataFor('durationBoxplot'); return; }
+                    const barChart = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Median duration (s)', data: medians, backgroundColor: '#4e73df' }] }, options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false } } } });
+                    canvas._chartInstance = barChart;
+                }
             })();
 
             // Poutcome stacked
+            // compara resultados previos (poutcome) y desglosa yes/no
+            // Contiene: etiquetas de poutcome y conteos
+            // Tipo: barra apilada.
+            destroyIfExists('poutcomeStacked');
             (function () {
-                destroyIfExists('poutcomeStacked');
                 const canvas = document.getElementById('poutcomeStacked');
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
@@ -434,62 +559,41 @@
                 const chart = new Chart(ctx, {
                     type: 'bar',
                     data: { labels, datasets: [{ label: 'No', data: noData, backgroundColor: '#6b7280' }, { label: 'Yes', data: yesData, backgroundColor: '#1cc88a' }] },
-                    options: {
-                        responsive: true,
-                        plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${numberFormatter.format(Number(ctx.raw || 0))}` } }, legend: { labels: { color: 'white' } } },
-                        scales: { x: { ticks: { color: 'white' }, stacked: true }, y: { ticks: { color: 'white' }, stacked: true, beginAtZero: true } },
-                        interaction: { mode: 'nearest', intersect: false }
-                    }
+                    options: { responsive: true, plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${numberFormatter.format(Number(ctx.raw || 0))}` } }, legend: { labels: { color: 'white' } } }, scales: { x: { ticks: { color: 'white' }, stacked: true }, y: { ticks: { color: 'white' }, stacked: true, beginAtZero: true } }, interaction: { mode: 'nearest', intersect: false } }
                 });
                 canvas._chartInstance = chart;
             })();
 
             // Campaign scatter (bubble)
+            // muestra por campaña la tasa de conversión y tamaño relativo por volumen
+            // Contiene: puntos con x=campaign, y=conversionRate, r~Total
+            // Tipo: bubble.
+            destroyIfExists('campaignScatter');
             (function () {
-                destroyIfExists('campaignScatter');
                 const canvas = document.getElementById('campaignScatter');
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
-                const pts = (campaignRaw || []).map(p => ({
-                    x: Number(p.Campaign ?? p.campaign ?? 0),
-                    y: Number(p.ConversionRate ?? p.conversionRate ?? 0),
-                    r: Math.max(3, Math.log((Number(p.Total ?? p.total ?? 1) + 1)) * 2),
-                    meta: p
-                }));
+                const pts = (campaignRaw || []).map(p => ({ x: Number(p.Campaign ?? p.campaign ?? 0), y: Number(p.ConversionRate ?? p.conversionRate ?? 0), r: Math.max(3, Math.log((Number(p.Total ?? p.total ?? 1) + 1)) * 2), meta: p }));
                 if (!pts.length) return;
                 const chart = new Chart(ctx, {
                     type: 'bubble',
                     data: { datasets: [{ label: 'Campaign', data: pts, backgroundColor: '#CB3CFF' }] },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            tooltip: { callbacks: { label: ctx => {
-                                const item = ctx.raw || {};
-                                const total = Number(item.meta?.Total ?? item.meta?.total ?? 0);
-                                return `Campaign ${item.x}: ${numberFormatter.format(item.y)}% (n=${total})`;
-                            } } },
-                            legend: { labels: { color: 'white' } }
-                        },
-                        scales: {
-                            x: { type: 'linear', title: { display: true, text: 'Campaign', color: 'white' }, ticks: { color: 'white', precision: 0 } },
-                            y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
-                        },
-                        interaction: { mode: 'nearest', intersect: false }
-                    }
+                    options: { responsive: true, plugins: { tooltip: { callbacks: { label: ctx => { const item = ctx.raw || {}; const total = Number(item.meta?.Total ?? item.meta?.total ?? 0); return `Campaign ${item.x}: ${numberFormatter.format(item.y)}% (n=${total})`; } } }, legend: { labels: { color: 'white' } } }, scales: { x: { type: 'linear', title: { display: true, text: 'Campaign', color: 'white' }, ticks: { color: 'white', precision: 0 } }, y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true } }, interaction: { mode: 'nearest', intersect: false } }
                 });
                 canvas._chartInstance = chart;
             })();
 
-            // success
+            // Señal de éxito global
             window.__dash_init_done = true;
             console.debug('[dash] init done');
         } catch (err) {
+            // Si ocurre un error en el renderizado general lo registramos sin romper la UI.
             window.__dash_init_error = String(err);
-            window.__dash_init_done = true; // mark done so AJAX caller won't hang; error is available
+            window.__dash_init_done = true;
             console.error('[dash] init failed', err);
         }
 
-        // helper for debugging: expose function that returns current init status
+        // Función auxiliar para que otras partes esperen a que la inicialización termine.
         window.__dash_wait_for_init = function(timeoutMs = 2000) {
             return new Promise((resolve) => {
                 const start = Date.now();
@@ -506,5 +610,95 @@
                 })();
             });
         };
+    </script>
+
+    <!-- Export a PDF y otras utilidades -->
+    <script>
+    (function () {
+        // Recopila resumen de filtros aplicados para incluir en el PDF
+        function collectFiltersSummary() {
+            const summary = [];
+            const groups = {};
+            document.querySelectorAll('input[type="checkbox"][data-filter]').forEach(cb => {
+                const key = cb.dataset.filter;
+                groups[key] = groups[key] || [];
+                if (cb.checked) groups[key].push(cb.value);
+            });
+            for (const k of Object.keys(groups)) {
+                if (groups[k].length) summary.push(`${k}: ${groups[k].join(', ')}`);
+                else summary.push(`${k}: (none)`);
+            }
+            document.querySelectorAll('.custom-slider[data-param]').forEach(s => {
+                const p = s.dataset.param;
+                const v = s.dataset.currentValue ?? s.dataset.value ?? '';
+                summary.push(`${p}: ${v}`);
+            });
+            return summary.join('  •  ');
+        }
+
+        async function exportDashboardPdf() {
+            try {
+                const exportBtn = document.getElementById('exportPdfBtn');
+                exportBtn.disabled = true;
+                exportBtn.textContent = 'Preparing PDF...';
+
+                const container = document.querySelector('.dashboard-container');
+                if (!container) throw new Error('Dashboard container not found');
+
+                // Snapshot con html2canvas, escala para mayor resolución
+                const canvas = await html2canvas(container, { scale: 2, useCORS: true, backgroundColor: getComputedStyle(document.body).backgroundColor || '#ffffff' });
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = pageWidth;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                if (imgHeight <= pageHeight) {
+                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                } else {
+                    const ratio = canvas.width / imgWidth;
+                    let renderedHeight = 0;
+                    while (renderedHeight < canvas.height) {
+                        const sliceH = Math.min(Math.floor(pageHeight * ratio), canvas.height - renderedHeight);
+                        const sliceCanvas = document.createElement('canvas');
+                        sliceCanvas.width = canvas.width;
+                        sliceCanvas.height = sliceH;
+                        const ctx = sliceCanvas.getContext('2d');
+                        ctx.drawImage(canvas, 0, renderedHeight, sliceCanvas.width, sliceCanvas.height, 0, 0, sliceCanvas.width, sliceCanvas.height);
+                        const sliceData = sliceCanvas.toDataURL('image/png');
+                        pdf.addImage(sliceData, 'PNG', 0, 0, imgWidth, sliceCanvas.height / ratio);
+                        renderedHeight += sliceH;
+                        if (renderedHeight < canvas.height) pdf.addPage();
+                    }
+                }
+
+                // Página final: resumen de filtros
+                const filterSummary = collectFiltersSummary();
+                if (filterSummary) {
+                    pdf.addPage();
+                    pdf.setFontSize(12);
+                    pdf.text('Filters applied (summary):', 40, 40);
+                    const split = pdf.splitTextToSize(filterSummary, pageWidth - 80);
+                    pdf.text(split, 40, 60);
+                }
+
+                const filename = `dashboard_report_${new Date().toISOString().replace(/[:.]/g,'-')}.pdf`;
+                pdf.save(filename);
+            } catch (err) {
+                console.error('Export PDF failed', err);
+                alert('Export failed: ' + (err.message || err));
+            } finally {
+                const exportBtn = document.getElementById('exportPdfBtn');
+                if (exportBtn) { exportBtn.disabled = false; exportBtn.textContent = 'Export PDF'; }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('exportPdfBtn');
+            if (btn) btn.addEventListener('click', exportDashboardPdf);
+        });
+    })();
     </script>
 }
