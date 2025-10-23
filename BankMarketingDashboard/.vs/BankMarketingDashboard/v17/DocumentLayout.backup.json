@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\services\\datavalidationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:services\\datavalidationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|c:\\users\\aless\\documents\\github\\bankmarketing\\bankmarketingdashboard\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{48C2AE8B-628A-49AC-8CE4-BFA0FBD674DE}|BankMarketingDashboard.csproj|solutionrelative:controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -39,27 +39,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T23:59:57.486Z",
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Views\\Dashboard\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Dashboard\\Index.cshtml",
+              "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Views\\Dashboard\\Index.cshtml",
+              "RelativeToolTip": "Views\\Dashboard\\Index.cshtml",
+              "ViewState": "AgIAAOEAAAAAAAAAAAAmwP8AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-23T00:34:48.463Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "DataValidationService.cs",
-              "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Services\\DataValidationService.cs",
-              "RelativeDocumentMoniker": "Services\\DataValidationService.cs",
-              "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Services\\DataValidationService.cs",
-              "RelativeToolTip": "Services\\DataValidationService.cs",
-              "ViewState": "AgIAAMIAAAAAAAAAAAAIwLcAAABQAAAAAAAAAA==",
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "Controllers\\DashboardController.cs",
+              "ToolTip": "C:\\Users\\aless\\Documents\\Github\\BankMarketing\\BankMarketingDashboard\\Controllers\\DashboardController.cs",
+              "RelativeToolTip": "Controllers\\DashboardController.cs",
+              "ViewState": "AgIAACIBAAAAAAAAAAApwBUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T23:54:53.573Z",
+              "WhenOpened": "2025-10-23T00:34:26.798Z",
               "EditorCaption": ""
             }
           ]

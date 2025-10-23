@@ -3,14 +3,12 @@
     ViewData["Title"] = "Reports";
 
     // KPIs
-    // Variables con indicadores clave calculados en el controlador.
     var totalContacts = ViewBag.TotalContacts as int? ?? 0;
     var conversionRate = ViewBag.ConversionRate as double? ?? 0;
     var avgDuration = ViewBag.AvgDuration as double? ?? 0;
     var successfulCalls = ViewBag.SuccessfulCalls as int? ?? 0;
 
-    // Conjuntos de datos recibidos desde el servidor (ViewBag).
-    // Se esperan listas ya agregadas y agregadas/normalizadas por el controlador.
+    // Aggregates
     var maritalData = ViewBag.MaritalData as List<ChartPoint> ?? new List<ChartPoint>();
     var jobData = ViewBag.JobData as List<ChartPoint> ?? new List<ChartPoint>();
     var educationData = ViewBag.EducationData as List<ChartPoint> ?? new List<ChartPoint>();
@@ -18,7 +16,6 @@
     var ageData = ViewBag.AgeData as List<ChartPoint> ?? new List<ChartPoint>();
     var conversionByAge = ViewBag.ConversionByAge as List<ChartPoint> ?? new List<ChartPoint>();
 
-    // Conjuntos concretos para gráficos adicionales (tipados).
     var defaultData = ViewBag.DefaultData as List<ChartPoint> ?? new List<ChartPoint>();
     var housingData = ViewBag.HousingData as List<ChartPoint> ?? new List<ChartPoint>();
     var loanData = ViewBag.LoanData as List<ChartPoint> ?? new List<ChartPoint>();
@@ -27,6 +24,19 @@
     var boxplotData = ViewBag.BoxplotDuration as List<BoxplotPoint> ?? new List<BoxplotPoint>();
     var poutcomeStack = ViewBag.PoutcomeStack as List<PoutcomePoint> ?? new List<PoutcomePoint>();
     var campaignScatter = ViewBag.CampaignScatter as List<CampaignPoint> ?? new List<CampaignPoint>();
+
+    var pdaysHistogram = ViewBag.PdaysHistogram as List<ChartPoint> ?? new List<ChartPoint>();
+    var previousConversion = ViewBag.PreviousConversion as List<ChartPoint> ?? new List<ChartPoint>();
+
+    // Typed scatters
+    var empVarScatter = ViewBag.EmpVarScatter as List<ScatterPoint> ?? new List<ScatterPoint>();
+    var consPriceScatter = ViewBag.ConsPriceScatter as List<ScatterPoint> ?? new List<ScatterPoint>();
+    var consConfScatter = ViewBag.ConsConfScatter as List<ScatterPoint> ?? new List<ScatterPoint>();
+    var euriborScatter = ViewBag.EuriborScatter as List<ScatterPoint> ?? new List<ScatterPoint>();
+    var nrEmployedScatter = ViewBag.NrEmployedScatter as List<ScatterPoint> ?? new List<ScatterPoint>();
+
+    // NEW: global subscription yes/no distribution
+    var subscriptionDistribution = ViewBag.SubscriptionDistribution as List<ChartPoint> ?? new List<ChartPoint>();
 }
 
 <div class="dashboard-container">
@@ -123,14 +133,6 @@
             </div>
         </div>
 
-        <!-- Conversion Rate by Age Group -->
-        <div class="col-md-6 mb-4">
-            <div class="chart-container">
-                <h5 class="chart-title">Conversion Rate by Age Group</h5>
-                <canvas id="conversionAgeChart"></canvas>
-            </div>
-        </div>
-
         <!-- Credit in default -->
         <div class="col-md-6 mb-4">
             <div class="chart-container">
@@ -194,6 +196,71 @@
                 <canvas id="campaignScatter"></canvas>
             </div>
         </div>
+
+        <!-- pdays histogram -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Days Since Previous Contact (pdays) — Buckets</h5>
+                <canvas id="pdaysChart"></canvas>
+            </div>
+        </div>
+
+        <!-- previous conversion rate -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Conversion Rate by Previous Contacts</h5>
+                <canvas id="previousConvChart"></canvas>
+            </div>
+        </div>
+
+        <!-- cons.price.idx scatter -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Cons. Price Index vs Conversion (%)</h5>
+                <canvas id="conspriceScatter"></canvas>
+            </div>
+        </div>
+
+        <!-- cons.conf.idx scatter -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Cons. Confidence Index vs Conversion (%)</h5>
+                <canvas id="consconfScatter"></canvas>
+            </div>
+        </div>
+
+        <!-- euribor3m scatter -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Euribor 3m vs Conversion (%)</h5>
+                <canvas id="euribor3mScatter"></canvas>
+            </div>
+        </div>
+
+        <!-- nr.employed scatter -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Nr. Employed vs Conversion (%)</h5>
+                <canvas id="nremployedScatter"></canvas>
+            </div>
+        </div>
+
+        <!-- emp.var.rate scatter -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">Emp. Var. Rate vs Conversion (%)</h5>
+                <canvas id="empvarScatter"></canvas>
+            </div>
+        </div>
+
+        <!-- Global Yes/No Subscription Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="chart-container">
+                <h5 class="chart-title">                                                                            </h5>
+                <canvas id="subscriptionPie"></canvas>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -203,12 +270,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.0/dist/chartjs-chart-matrix.min.js"></script>
 
     <script data-dash-init>
-
         // ----------------------------
-        // SERIALIZACIÓN DE DATOS (server -> cliente)
+        // SERIALIZACIÓN DE DATOS
         // ----------------------------
-
-        // Aquí convertimos las colecciones Razor en literales JS.
         const maritalLabels = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Label ?? "Unknown").ToArray()));
         const maritalValues = @Html.Raw(Json.Serialize(maritalData.Select(m => m.Value).ToArray()));
 
@@ -246,11 +310,35 @@
         const poutcomeRaw = @Html.Raw(Json.Serialize(poutcomeStack));
         const campaignRaw = @Html.Raw(Json.Serialize(campaignScatter));
 
+        // Yes/No pie
+        const subscriptionLabels = @Html.Raw(Json.Serialize(subscriptionDistribution.Select(s => s.Label).ToArray()));
+        const subscriptionValues = @Html.Raw(Json.Serialize(subscriptionDistribution.Select(s => s.Value).ToArray()));
+
+        // Otros
+        const pdaysLabels = @Html.Raw(Json.Serialize(pdaysHistogram.Select(p => p.Label).ToArray()));
+        const pdaysValues = @Html.Raw(Json.Serialize(pdaysHistogram.Select(p => p.Value).ToArray()));
+
+        const previousLabels = @Html.Raw(Json.Serialize(previousConversion.Select(p => p.Label).ToArray()));
+        const previousValues = @Html.Raw(Json.Serialize(previousConversion.Select(p => p.Value).ToArray()));
+
+        const empVarRaw = @Html.Raw(Json.Serialize(empVarScatter));
+        const consPriceRaw = @Html.Raw(Json.Serialize(consPriceScatter));
+        const consConfRaw = @Html.Raw(Json.Serialize(consConfScatter));
+        const euribor3mRaw = @Html.Raw(Json.Serialize(euriborScatter));
+        const nrEmployedRaw = @Html.Raw(Json.Serialize(nrEmployedScatter));
+
         // depuración
         console.debug('DATA LENGTHS', {
             boxplot: (boxplotRaw || []).length,
             poutcome: (poutcomeRaw || []).length,
-            campaign: (campaignRaw || []).length
+            campaign: (campaignRaw || []).length,
+            pdays: (pdaysLabels || []).length,
+            previous: (previousLabels || []).length,
+            empvar: (empVarRaw || []).length,
+            consprice: (consPriceRaw || []).length,
+            consconf: (consConfRaw || []).length,
+            euribor: (euribor3mRaw || []).length,
+            nremployed: (nrEmployedRaw || []).length
         });
 
         // ----------------------------
@@ -335,6 +423,28 @@
         // ----------------------------
 
         try {
+            // NEW: Global Yes/No Subscription Distribution (doughnut)
+            destroyIfExists('subscriptionPie');
+            initChart('subscriptionPie', ctx => ({
+                type: 'doughnut',
+                data: {
+                    labels: subscriptionLabels,
+                    datasets: [{
+                        data: safeNumbers(subscriptionValues),
+                        backgroundColor: ['#1cc88a', '#6b7280'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...commonOpts,
+                    plugins: {
+                        ...commonOpts.plugins,
+                        legend: { position: 'right', labels: { color: 'white' } },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${Number(ctx.raw ?? 0).toLocaleString('en-US')}` } }
+                    }
+                }
+            }));
+
             // Civil Status Distribution
             // proporciones por estado civil
             // Contiene: etiquetas 'marital' y conteos
@@ -347,9 +457,6 @@
             }));
 
             // Occupation Distribution
-            // recuento por ocupación
-            // Contiene: etiquetas 'job' y valores
-            // Tipo: barra vertical.
             destroyIfExists('jobChart');
             initChart('jobChart', ctx => ({
                 type: 'bar',
@@ -358,9 +465,6 @@
             }));
 
             // Education Level
-            // recuentos por nivel educativo
-            // Contiene: etiquetas 'education' y valores
-            // Tipo: barra horizontal.
             destroyIfExists('educationChart');
             initChart('educationChart', ctx => ({
                 type: 'bar',
@@ -369,9 +473,6 @@
             }));
 
             // Contact Channel
-            // distribución por canal (cellular/telephone)
-            // Contiene: etiquetas 'contact' y valores
-            // Tipo: barra.
             destroyIfExists('contactChart');
             initChart('contactChart', ctx => ({
                 type: 'bar',
@@ -380,9 +481,6 @@
             }));
 
             // Age Distribution
-            // distribución de contactos por rango de edad
-            // Contiene: etiquetas de rango y conteos
-            // Tipo: barra.
             destroyIfExists('ageChart');
             initChart('ageChart', ctx => ({
                 type: 'bar',
@@ -391,9 +489,6 @@
             }));
 
             // Conversion Rate by Age Group
-            // tasa de conversión (%) por grupo de edad
-            // Contiene: etiquetas de edad y porcentaje
-            // Tipo: barra.
             destroyIfExists('conversionAgeChart');
             initChart('conversionAgeChart', ctx => ({
                 type: 'bar',
@@ -402,9 +497,6 @@
             }));
 
             // Credit in default
-            // comparación por estado de 'default' (yes/no/unknown)
-            // Contiene: etiquetas y conteos
-            // Tipo: barra.
             destroyIfExists('defaultChart');
             initChart('defaultChart', ctx => ({
                 type: 'bar',
@@ -413,9 +505,6 @@
             }));
 
             // Housing Loan
-            // comparación por housing (yes/no/unknown)
-            // Contiene: etiquetas y conteos
-            // Tipo: barra.
             destroyIfExists('housingChart');
             initChart('housingChart', ctx => ({
                 type: 'bar',
@@ -424,9 +513,6 @@
             }));
 
             // Personal Loan
-            // comparación por loan (yes/no/unknown)
-            // Contiene: etiquetas y conteos
-            // Tipo: barra.
             destroyIfExists('loanChart');
             initChart('loanChart', ctx => ({
                 type: 'bar',
@@ -435,9 +521,6 @@
             }));
 
             // Monthly Conversion Rate Trend
-            // tendencia mensual de la tasa de conversión
-            // Contiene: meses y porcentaje
-            // Tipo: línea.
             destroyIfExists('monthConvChart');
             initChart('monthConvChart', ctx => ({
                 type: 'line',
@@ -445,10 +528,7 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, tooltip: { callbacks: { label: ctx => `${numberFormatter.format(ctx.raw)}%` } } } }
             }));
 
-            // Weekday Conversion Rate 
-            // muestra la tasa de conversión por día de la semana con una barra horizontal coloreada.
-            // Contiene: etiquetas día (mon..fri) y porcentaje
-            // Tipo: barra horizontal con gradiente por valor.
+            // Weekday heatmap simplified
             destroyIfExists('dayHeatmap');
             (function () {
                 const canvas = document.getElementById('dayHeatmap');
@@ -514,15 +594,12 @@
             })();
 
             // Call Duration distribution
-            // resume la distribución de la duración por resultado (yes/no)
-            // Contiene: min, Q1, median, Q3, max
-            // Tipo: boxplot (si plugin disponible) o barra de medianas como fallback.
             destroyIfExists('durationBoxplot');
             (function () {
                 const canvas = document.getElementById('durationBoxplot');
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
-                const labels = (boxplotRaw || []).map(b => b.label ?? b.Label ?? '');
+                const labels = (boxplotRaw || []).map(b => b.label ?? b.Label ?? '' );
                 try {
                     const data = (boxplotRaw || []).map(b => [ Number(b.min ?? b.Min ?? 0), Number(b.q1 ?? b.Q1 ?? 0), Number(b.median ?? b.Median ?? 0), Number(b.q3 ?? b.Q3 ?? 0), Number(b.max ?? b.Max ?? 0) ]);
                     if (!labels.length || data.every(d => d.every(v => v === 0))) { showNoDataFor('durationBoxplot'); return; }
@@ -534,7 +611,7 @@
                     canvas._chartInstance = chart;
                 } catch (err) {
                     console.warn('Boxplot plugin not available or failed, fallback a mediana.', err);
-                    try { const reg = (window.Chart && typeof Chart.getChart === 'function') ? Chart.getChart(canvas) : null; if (reg) reg.destroy(); } catch (e) {}
+                    try { const reg = (window.Chart && typeof Chart.getChart === 'function') ? Chart.getChart(canvas) : null; if (reg) reg.destroy(); } catch {}
                     canvas._chartInstance = null;
                     const medians = (boxplotRaw || []).map(b => { const m = Number(b.median ?? b.Median ?? 0); return Number.isFinite(m) ? m : 0; });
                     if (!labels.length || medians.length === 0) { showNoDataFor('durationBoxplot'); return; }
@@ -544,15 +621,12 @@
             })();
 
             // Poutcome stacked
-            // compara resultados previos (poutcome) y desglosa yes/no
-            // Contiene: etiquetas de poutcome y conteos
-            // Tipo: barra apilada.
             destroyIfExists('poutcomeStacked');
             (function () {
                 const canvas = document.getElementById('poutcomeStacked');
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
-                const labels = (poutcomeRaw || []).map(p => p.Label ?? p.label ?? '');
+                const labels = (poutcomeRaw || []).map(p => p.Label ?? p.label ?? '' );
                 const yesData = (poutcomeRaw || []).map(p => Number(p.Yes ?? p.yes ?? 0));
                 const noData = (poutcomeRaw || []).map(p => Number(p.No ?? p.no ?? 0));
                 if (!labels.length) return;
@@ -565,9 +639,6 @@
             })();
 
             // Campaign scatter (bubble)
-            // muestra por campaña la tasa de conversión y tamaño relativo por volumen
-            // Contiene: puntos con x=campaign, y=conversionRate, r~Total
-            // Tipo: bubble.
             destroyIfExists('campaignScatter');
             (function () {
                 const canvas = document.getElementById('campaignScatter');
@@ -579,6 +650,204 @@
                     type: 'bubble',
                     data: { datasets: [{ label: 'Campaign', data: pts, backgroundColor: '#CB3CFF' }] },
                     options: { responsive: true, plugins: { tooltip: { callbacks: { label: ctx => { const item = ctx.raw || {}; const total = Number(item.meta?.Total ?? item.meta?.total ?? 0); return `Campaign ${item.x}: ${numberFormatter.format(item.y)}% (n=${total})`; } } }, legend: { labels: { color: 'white' } } }, scales: { x: { type: 'linear', title: { display: true, text: 'Campaign', color: 'white' }, ticks: { color: 'white', precision: 0 } }, y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true } }, interaction: { mode: 'nearest', intersect: false } }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // -----------------------------
+            // NEW: pdays histogram
+            // -----------------------------
+            destroyIfExists('pdaysChart');
+            (function () {
+                const canvas = document.getElementById('pdaysChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const labels = (pdaysLabels || []).slice();
+                const values = safeNumbers(pdaysValues || []);
+                if (!labels.length || values.length === 0) { showNoDataFor('pdaysChart'); return; }
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ data: values, backgroundColor: '#4e73df' }] },
+                    options: { ...commonOpts, scales: { y: { beginAtZero: true } }, plugins: { ...commonOpts.plugins, legend: { display: false }, tooltip: { callbacks: { label: ctx => `${numberFormatter.format(ctx.raw)} contacts` } } } }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // -----------------------------
+            // NEW: previous conversion rate
+            // -----------------------------
+            destroyIfExists('previousConvChart');
+            (function () {
+                const canvas = document.getElementById('previousConvChart');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const labels = (previousLabels || []).slice();
+                const values = safeNumbers(previousValues || []);
+                if (!labels.length || values.length === 0) { showNoDataFor('previousConvChart'); return; }
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels, datasets: [{ label: 'Conversion %', data: values, backgroundColor: '#1cc88a' }] },
+                    options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { callback: v => `${v}%` } } }, plugins: { ...commonOpts.plugins, legend: { display: false }, tooltip: { callbacks: { label: ctx => `${numberFormatter.format(ctx.raw)}%` } } } }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // -----------------------------
+            // NEW: cons.price.idx scatter
+            // -----------------------------
+            destroyIfExists('conspriceScatter');
+            (function () {
+                const canvas = document.getElementById('conspriceScatter');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const raw = (consPriceRaw || []);
+                const pts = raw.map(p => {
+                    const x = Number(p.X ?? p.x ?? 0);
+                    const y = Number(p.Y ?? p.y ?? 0);
+                    const total = Number(p.Total ?? p.total ?? 0);
+                    return { x, y, r: Math.max(3, Math.log(total + 1) * 2), meta: p };
+                }).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
+                if (!pts.length) { showNoDataFor('conspriceScatter'); return; }
+                const chart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: { datasets: [{ label: 'Cons. Price Idx', data: pts, backgroundColor: '#FF7F50' }] },
+                    options: {
+                        responsive: true,
+                        plugins: { tooltip: { callbacks: { label: ctx => { const item = ctx.raw || {}; return `cons.price.idx ${item.x}: ${numberFormatter.format(item.y)}% (n=${Number(item.meta?.Total ?? item.meta?.total ?? 0)})`; } } }, legend: { labels: { color: 'white' } } },
+                        scales: {
+                            x: { title: { display: true, text: 'Cons. Price Idx', color: 'white' }, ticks: { color: 'white' } },
+                            y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
+                        },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // -----------------------------
+            // NEW: cons.conf.idx scatter
+            // -----------------------------
+            destroyIfExists('consconfScatter');
+            (function () {
+                const canvas = document.getElementById('consconfScatter');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const raw = (consConfRaw || []);
+                const pts = raw.map(p => {
+                    const x = Number(p.X ?? p.x ?? 0);
+                    const y = Number(p.Y ?? p.y ?? 0);
+                    const total = Number(p.Total ?? p.total ?? 0);
+                    return { x, y, r: Math.max(3, Math.log(total + 1) * 2), meta: p };
+                }).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
+                if (!pts.length) { showNoDataFor('consconfScatter'); return; }
+                const chart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: { datasets: [{ label: 'Cons. Conf. Idx', data: pts, backgroundColor: '#00BFFF' }] },
+                    options: {
+                        responsive: true,
+                        plugins: { tooltip: { callbacks: { label: ctx => { const item = ctx.raw || {}; return `cons.conf.idx ${item.x}: ${numberFormatter.format(item.y)}% (n=${Number(item.meta?.Total ?? item.meta?.total ?? 0)})`; } } }, legend: { labels: { color: 'white' } } },
+                        scales: {
+                            x: { title: { display: true, text: 'Cons. Conf. Idx', color: 'white' }, ticks: { color: 'white' } },
+                            y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
+                        },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // -----------------------------
+            // NEW: euribor3m scatter
+            // -----------------------------
+            destroyIfExists('euribor3mScatter');
+            (function () {
+                const canvas = document.getElementById('euribor3mScatter');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const raw = (euribor3mRaw || []);
+                const pts = raw.map(p => {
+                    const x = Number(p.X ?? p.x ?? 0);
+                    const y = Number(p.Y ?? p.y ?? 0);
+                    const total = Number(p.Total ?? p.total ?? 0);
+                    return { x, y, r: Math.max(3, Math.log(total + 1) * 2), meta: p };
+                }).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
+                if (!pts.length) { showNoDataFor('euribor3mScatter'); return; }
+                const chart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: { datasets: [{ label: 'Euribor 3m', data: pts, backgroundColor: '#32CD32' }] },
+                    options: {
+                        responsive: true,
+                        plugins: { tooltip: { callbacks: { label: ctx => { const item = ctx.raw || {}; return `euribor3m ${item.x}: ${numberFormatter.format(item.y)}% (n=${Number(item.meta?.Total ?? item.meta?.total ?? 0)})`; } } }, legend: { labels: { color: 'white' } } },
+                        scales: {
+                            x: { title: { display: true, text: 'Euribor 3m', color: 'white' }, ticks: { color: 'white' } },
+                            y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
+                        },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // -----------------------------
+            // NEW: nr.employed scatter
+            // -----------------------------
+            destroyIfExists('nremployedScatter');
+            (function () {
+                const canvas = document.getElementById('nremployedScatter');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const raw = (nrEmployedRaw || []);
+                const pts = raw.map(p => {
+                    const x = Number(p.X ?? p.x ?? 0);
+                    const y = Number(p.Y ?? p.y ?? 0);
+                    const total = Number(p.Total ?? p.total ?? 0);
+                    return { x, y, r: Math.max(3, Math.log(total + 1) * 2), meta: p };
+                }).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
+                if (!pts.length) { showNoDataFor('nremployedScatter'); return; }
+                const chart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: { datasets: [{ label: 'Nr. Employed', data: pts, backgroundColor: '#DA70D6' }] },
+                    options: {
+                        responsive: true,
+                        plugins: { tooltip: { callbacks: { label: ctx => { const item = ctx.raw || {}; return `nr.employed ${item.x}: ${numberFormatter.format(item.y)}% (n=${Number(item.meta?.Total ?? item.meta?.total ?? 0)})`; } } }, legend: { labels: { color: 'white' } } },
+                        scales: {
+                            x: { title: { display: true, text: 'Nr. Employed', color: 'white' }, ticks: { color: 'white' } },
+                            y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
+                        },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
+                });
+                canvas._chartInstance = chart;
+            })();
+
+            // -----------------------------
+            // NEW: emp.var.rate scatter (existing)
+            // -----------------------------
+            destroyIfExists('empvarScatter');
+            (function () {
+                const canvas = document.getElementById('empvarScatter');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const raw = (empVarRaw || []);
+                const pts = raw.map(p => {
+                    const x = Number(p.X ?? p.x ?? 0);
+                    const y = Number(p.Y ?? p.y ?? 0);
+                    const total = Number(p.Total ?? p.total ?? 0);
+                    return { x, y, r: Math.max(3, Math.log(total + 1) * 2), meta: p };
+                }).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y));
+                if (!pts.length) { showNoDataFor('empvarScatter'); return; }
+                const chart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: { datasets: [{ label: 'EmpVarRate vs Conversion', data: pts, backgroundColor: '#CB3CFF' }] },
+                    options: {
+                        responsive: true,
+                        plugins: { tooltip: { callbacks: { label: ctx => { const item = ctx.raw || {}; return `emp.var.rate ${item.x}: ${numberFormatter.format(item.y)}% (n=${Number(item.meta?.Total ?? item.meta?.total ?? 0)})`; } } }, legend: { labels: { color: 'white' } } },
+                        scales: {
+                            x: { title: { display: true, text: 'Emp. Var. Rate', color: 'white' }, ticks: { color: 'white' } },
+                            y: { title: { display: true, text: 'Conversion Rate (%)', color: 'white' }, ticks: { color: 'white' }, beginAtZero: true }
+                        },
+                        interaction: { mode: 'nearest', intersect: false }
+                    }
                 });
                 canvas._chartInstance = chart;
             })();
@@ -612,7 +881,7 @@
         };
     </script>
 
-    <!-- Export a PDF y otras utilidades -->
+    <!-- Export PDF and utilities -->
     <script>
     (function () {
         // Recopila resumen de filtros aplicados para incluir en el PDF
