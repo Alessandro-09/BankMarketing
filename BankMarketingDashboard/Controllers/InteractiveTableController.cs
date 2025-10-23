@@ -1,6 +1,4 @@
-﻿// Controlador: InteractiveTableController.cs
-// Contiene acciones para mostrar la tabla interactiva, aplicar filtros y exportar datos (CSV/Excel)
-using BankMarketingDashboard.Data;
+﻿using BankMarketingDashboard.Data;
 using BankMarketingDashboard.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
@@ -10,19 +8,38 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
+/* =========================================================================
+ *   Controlador que expone una tabla interactiva con paginación y filtros
+ *   aplicables desde la query string. También permite exportar los datos
+ *   filtrados a CSV o Excel. La mayor parte del trabajo consiste en construir
+ *   una consulta `IQueryable<CampaignRecord>` que representa los filtros
+ *   solicitados, de modo que la base de datos haga el trabajo pesado.
+ * ========================================================================= */
+
 namespace BankMarketingDashboard.Controllers
 {
+    /* ---------------------------------------------------------------------
+     *   Controlador responsable de presentar una tabla navegable y exportable
+     *   de `CampaignRecord` con múltiples filtros y paginación.
+     * --------------------------------------------------------------------- */
     public class InteractiveTableController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private const int PageSize = 100;
+        private const int PageSize = 100; // tamaño de página fijo para la paginación
 
+        /* -----------------------------------------------------------------
+         *   Inyecta el contexto de datos que permite construir consultas EF.
+         * ----------------------------------------------------------------- */
         public InteractiveTableController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // Acción principal: muestra la vista con la tabla paginada y aplica los filtros desde la query string.
+        /* ---------------------------------------------------------------------
+         *   Acción principal que muestra la vista completa con la tabla paginada.
+         *   Lee los filtros desde la query string, construye la consulta y
+         *   ofrece información de paginación a la vista.
+         * --------------------------------------------------------------------- */
         public IActionResult Index(
             int page = 1,
             [FromQuery(Name = "age_min")] int? minAge = null,
@@ -58,8 +75,10 @@ namespace BankMarketingDashboard.Controllers
             [FromQuery(Name = "nremployed_min")] double? minNrEmployed = null,
             [FromQuery(Name = "nremployed_max")] double? maxNrEmployed = null)
         {
+            // Normalizar la página para evitar valores inválidos
             if (page < 1) page = 1;
 
+            // Construimos la consulta filtrada (sin materializar aún)
             var query = BuildFilteredQuery(
                 minAge, maxAge,
                 job, marital, education, month, y, subscribed,
@@ -70,15 +89,18 @@ namespace BankMarketingDashboard.Controllers
                 minConsConfIdx, maxConsConfIdx, minEuribor3m, maxEuribor3m,
                 minNrEmployed, maxNrEmployed);
 
+            // Contamos y paginamos; Count se traduce a SQL COUNT por EF Core.
             var totalRecords = query.Count();
             var totalPages = (int)System.Math.Ceiling((double)totalRecords / PageSize);
 
+            // Materializamos solo la página solicitada
             var records = query
-                .OrderBy(c => c.Age)
+                .OrderBy(c => c.Age) // orden razonable y estable para paginación
                 .Skip((page - 1) * PageSize)
                 .Take(PageSize)
                 .ToList();
 
+            // Pasamos datos de paginación/filtros a la vista mediante ViewBag
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalRecords = totalRecords;
@@ -124,9 +146,15 @@ namespace BankMarketingDashboard.Controllers
             ViewBag.MinNrEmployed = minNrEmployed;
             ViewBag.MaxNrEmployed = maxNrEmployed;
 
+            // Retornamos la vista principal con la página de registros
             return View(records);
         }
 
+        /* ---------------------------------------------------------------------
+         *   Acción que devuelve solo la porción de la tabla (partial view).
+         *   Se usa para actualizar la tabla mediante peticiones AJAX sin recargar
+         *   la página completa.
+         * --------------------------------------------------------------------- */
         [HttpGet]
         // Acción parcial para cargar solo la tabla
         public IActionResult TablePartial(
@@ -164,10 +192,11 @@ namespace BankMarketingDashboard.Controllers
             [FromQuery(Name = "nremployed_min")] double? minNrEmployed = null,
             [FromQuery(Name = "nremployed_max")] double? maxNrEmployed = null)
         {
-            // Línea de depuración para verificar qué parámetros está recibiendo esta llamada parcial
+            // Línea de depuración para verificar parámetros en tiempo de desarrollo
             System.Diagnostics.Debug.WriteLine($"TablePartial called: page={page}, minPdays={minPdays}, maxPdays={maxPdays}, minCampaign={minCampaign}, maxCampaign={maxCampaign}, minPrevious={minPrevious}, maxPrevious={maxPrevious}, minEmpVarRate={minEmpVarRate}, maxEmpVarRate={maxEmpVarRate}, minConsPriceIdx={minConsPriceIdx}, maxConsPriceIdx={maxConsPriceIdx}, minConsConfIdx={minConsConfIdx}, maxConsConfIdx={maxConsConfIdx}");
             if (page < 1) page = 1;
 
+            // Construimos la misma consulta que en `Index`
             var query = BuildFilteredQuery(
                 minAge, maxAge,
                 job, marital, education, month, y, subscribed,     // pasar subscribe' al helper de filtros
@@ -187,6 +216,7 @@ namespace BankMarketingDashboard.Controllers
                 .Take(PageSize)
                 .ToList();
 
+            // Pasamos datos a la partial igual que en `Index` para consistencia
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalRecords = totalRecords;
@@ -267,6 +297,7 @@ namespace BankMarketingDashboard.Controllers
         {
             try
             {
+                // Materializamos todos los registros filtrados para exportar
                 var query = BuildFilteredQuery(
                     minAge, maxAge,
                     job, marital, education, month, y, subscribed,
@@ -279,6 +310,7 @@ namespace BankMarketingDashboard.Controllers
 
                 var records = query.ToList();
 
+                // Construcción manual del CSV; escapamos comillas dobles según RFC
                 var csv = new StringBuilder();
                 csv.AppendLine("Age,Job,Marital,Education,Default,Housing,Loan,Contact,Month,DayOfWeek,Duration,Campaign,Pdays,Previous,Poutcome,EmpVarRate,ConsPriceIdx,ConsConfIdx,Euribor3m,NrEmployed,Y");
 
@@ -311,9 +343,13 @@ namespace BankMarketingDashboard.Controllers
                     ));
                 }
 
+                // Guardamos en archivo temporal y devolvemos como PhysicalFile.
+                // Añadimos BOM para compatibilidad con Excel/Notepad en algunos sistemas.
                 var tempPath = Path.Combine(Path.GetTempPath(), $"bankmarketing_{System.Guid.NewGuid()}.csv");
                 System.IO.File.WriteAllText(tempPath, "\uFEFF" + csv.ToString(), new UTF8Encoding(true));
 
+                // Programamos la eliminación del archivo temporal en segundo plano
+                // para no dejar basura en disco si el cliente no lo descarga.
                 _ = Task.Run(async () =>
                 {
                     await Task.Delay(TimeSpan.FromMinutes(5));
@@ -324,12 +360,15 @@ namespace BankMarketingDashboard.Controllers
             }
             catch (System.Exception ex)
             {
+                // Registramos el error en debug
                 System.Diagnostics.Debug.WriteLine($"Export CSV error: {ex}");
                 return StatusCode(500, "CSV export failed.");
             }
         }
 
-        // Exportar Excel aplicando los mismos filtros que la vista Index/TablePartial
+        /* ---------------------------------------------------------------------
+         *   Genera y devuelve un archivo Excel (.xlsx) con los registros filtrados.
+         * --------------------------------------------------------------------- */
         public IActionResult ExportExcel(
             [FromQuery(Name = "age_min")] int? minAge = null,
             [FromQuery(Name = "age_max")] int? maxAge = null,
@@ -366,6 +405,7 @@ namespace BankMarketingDashboard.Controllers
         {
             try
             {
+                // Materializamos la consulta filtrada
                 var query = BuildFilteredQuery(
                     minAge, maxAge,
                     job, marital, education, month, y, subscribed,
@@ -378,6 +418,7 @@ namespace BankMarketingDashboard.Controllers
 
                 var records = query.ToList();
 
+                // Creamos un archivo Excel temporal usando ClosedXML
                 var tempPath = Path.Combine(Path.GetTempPath(), $"bankmarketing_{System.Guid.NewGuid()}.xlsx");
 
                 using (var workbook = new XLWorkbook())
@@ -391,6 +432,7 @@ namespace BankMarketingDashboard.Controllers
                         "EmpVarRate", "ConsPriceIdx", "ConsConfIdx", "Euribor3m", "NrEmpleados", "Y"
                     };
 
+                    // Escribimos cabeceras con estilo sencillo para que el archivo sea legible
                     for (int i = 0; i < headers.Length; i++)
                     {
                         worksheet.Cell(1, i + 1).Value = headers[i];
@@ -399,6 +441,7 @@ namespace BankMarketingDashboard.Controllers
                         worksheet.Cell(1, i + 1).Style.Font.FontColor = XLColor.White;
                     }
 
+                    // Rellenamos filas con los datos
                     for (int i = 0; i < records.Count; i++)
                     {
                         var r = records[i];
@@ -425,10 +468,12 @@ namespace BankMarketingDashboard.Controllers
                         worksheet.Cell(i + 2, 21).Value = r.Y;
                     }
 
+                    // Ajuste de ancho para mejor presentación
                     worksheet.Columns().AdjustToContents();
                     workbook.SaveAs(tempPath);
                 }
 
+                // Programamos la eliminación del archivo temporal como en ExportCsv
                 _ = Task.Run(async () =>
                 {
                     await Task.Delay(TimeSpan.FromMinutes(5));
@@ -444,7 +489,11 @@ namespace BankMarketingDashboard.Controllers
             }
         }
 
-        // Helper para construir la consulta filtrada (devuelve IQueryable para permitir paginación y composición)
+        /* ---------------------------------------------------------------------
+         *   Helper que construye y devuelve un `IQueryable<CampaignRecord>` que
+         *   aplica todos los filtros recibidos como parámetros. La consulta
+         *   resultante está preparada para ser paginada o materializada por el caller.
+         * --------------------------------------------------------------------- */
         private IQueryable<CampaignRecord> BuildFilteredQuery(
             int? minAge, int? maxAge,
             string[]? job, string[]? marital, string[]? education, string[]? month, string[]? y, string[]? subscribed, 
@@ -455,6 +504,7 @@ namespace BankMarketingDashboard.Controllers
             double? minConsConfIdx, double? maxConsConfIdx, double? minEuribor3m, double? maxEuribor3m,
             double? minNrEmpleados, double? maxNrEmpleados)
         {
+            // Partimos de todos los registros y añadimos filtros sucesivamente
             var query = _context.CampaignData.AsQueryable();
 
             // Rangos de edad
@@ -462,6 +512,7 @@ namespace BankMarketingDashboard.Controllers
             if (maxAge.HasValue) query = query.Where(c => c.Age <= maxAge.Value);
 
             // Job: coincidencia parcial insensible a mayúsculas/minúsculas mediante EF.Functions.Like
+            // Usamos expresiones dinámicas para construir una condición OR entre varios `LIKE '%val%'`
             if (job != null && job.Any(s => !string.IsNullOrWhiteSpace(s)))
             {
                 var arr = job.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.ToLower()).ToArray();
@@ -470,17 +521,20 @@ namespace BankMarketingDashboard.Controllers
                     var param = System.Linq.Expressions.Expression.Parameter(typeof(CampaignRecord), "c");
                     System.Linq.Expressions.Expression? body = null;
 
+                    // c.Job ?? ""  --> evita nulls antes de hacer ToLower
                     var jobProp = System.Linq.Expressions.Expression.Property(param, nameof(CampaignRecord.Job));
                     var coalesce = System.Linq.Expressions.Expression.Coalesce(jobProp, System.Linq.Expressions.Expression.Constant(""));
                     var toLowerMethod = typeof(string).GetMethod("ToLower", System.Type.EmptyTypes)!;
                     var toLowerExpr = System.Linq.Expressions.Expression.Call(coalesce, toLowerMethod);
 
+                    // EF.Functions para que EF Core traduzca Like a SQL LIKE
                     var efFunctionsProp = typeof(Microsoft.EntityFrameworkCore.EF).GetProperty(nameof(Microsoft.EntityFrameworkCore.EF.Functions))!;
                     var efFunctionsExpr = System.Linq.Expressions.Expression.Property(null, efFunctionsProp);
 
                     var likeMethod = typeof(Microsoft.EntityFrameworkCore.DbFunctionsExtensions)
                         .GetMethod(nameof(Microsoft.EntityFrameworkCore.DbFunctionsExtensions.Like), new[] { typeof(Microsoft.EntityFrameworkCore.DbFunctions), typeof(string), typeof(string) })!;
 
+                    // Construimos OR(like(..., '%val1%'), like(..., '%val2%'), ...)
                     foreach (var val in arr)
                     {
                         var pattern = System.Linq.Expressions.Expression.Constant("%" + val + "%");
@@ -489,6 +543,7 @@ namespace BankMarketingDashboard.Controllers
                     }
 
                     var lambda = System.Linq.Expressions.Expression.Lambda<Func<CampaignRecord, bool>>(body!, param);
+                    // Aplicamos la condición a la consulta; se traducirá a SQL y será eficiente
                     query = query.Where(lambda);
                 }
             }
@@ -497,10 +552,11 @@ namespace BankMarketingDashboard.Controllers
             if (marital != null && marital.Any(s => !string.IsNullOrWhiteSpace(s)))
             {
                 var arr = marital.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.ToLower()).ToArray();
+                // Convertimos both sides a minúsculas para comparar sin case-sensitivity
                 query = query.Where(c => arr.Contains((c.Marital ?? "").ToLower()));
             }
 
-            // Education: coincidencia parcial insensible a mayúsculas/minúsculas
+            // Education: coincidencia parcial tipo Job
             if (education != null && education.Any(s => !string.IsNullOrWhiteSpace(s)))
             {
                 var arr = education.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.ToLower()).ToArray();
@@ -539,7 +595,8 @@ namespace BankMarketingDashboard.Controllers
                 query = query.Where(c => arr.Contains((c.Month ?? "").ToLower()));
             }
 
-            // Y/subscribed: aceptar ambos parámetros; 'subscribed' tiene prioridad si se proporciona
+            // Y/subscribed: admitir ambos parámetros, subscribed tiene prioridad
+            // Esto permite compatibilidad con diferentes nombres de filtro desde la UI
             var subsInput = subscribed ?? y;
             if (subsInput != null && subsInput.Any(s => !string.IsNullOrWhiteSpace(s)))
             {
@@ -547,7 +604,7 @@ namespace BankMarketingDashboard.Controllers
                 query = query.Where(c => arr.Contains((c.Y ?? "").ToLower()));
             }
 
-            // Filtros categóricos adicionales (comparación exacta, insensible a mayúsculas/minúsculas)
+            // Filtros categóricos adicionales (comparación exacta, normalizando a minúsculas)
             if (defaultFilter != null && defaultFilter.Any(s => !string.IsNullOrWhiteSpace(s)))
             {
                 var arr = defaultFilter.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.ToLower()).ToArray();
@@ -613,6 +670,7 @@ namespace BankMarketingDashboard.Controllers
             if (minNrEmpleados.HasValue) query = query.Where(c => c.NrEmployed >= minNrEmpleados.Value);
             if (maxNrEmpleados.HasValue) query = query.Where(c => c.NrEmployed <= maxNrEmpleados.Value);
 
+            // Devolvemos la consulta aún sin materializar
             return query;
         }
     }

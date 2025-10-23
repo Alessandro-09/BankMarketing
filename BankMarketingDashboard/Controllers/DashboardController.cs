@@ -6,8 +6,26 @@ using System.Linq;
 
 namespace BankMarketingDashboard.Controllers
 {
+    /* =========================================================================
+     *
+     * Flujo general del programa:
+     *   1. Leer filtros de la query string (checkboxes como listas, sliders como mínimos).
+     *   2. Construir una consulta IQueryable sobre _context.CampaignData aplicando
+     *      los filtros (esto hace la agregación en base de datos cuando es posible).
+     *   3. Calcular KPIs básicos (conteos, tasas, promedios).
+     *   4. Construir colecciones tipadas para las distintas visualizaciones.
+     *   5. Almacenar los resultados en ViewBag y retornar la vista.
+     *   
+     * ========================================================================= */
+
+
     public class DashboardController : Controller
     {
+        /* ---------------------------------------------------------------------
+         *   Inyecta el contexto de datos (ApplicationDbContext) que contiene
+         *   la tabla `CampaignData`. Este contexto se usa para construir las
+         *   consultas que alimentan el dashboard.
+         * --------------------------------------------------------------------- */
         private readonly ApplicationDbContext _context;
 
         public DashboardController(ApplicationDbContext context)
@@ -15,26 +33,47 @@ namespace BankMarketingDashboard.Controllers
             _context = context;
         }
 
-        // Helper para percentiles (interpolación simple)
+        /* ---------------------------------------------------------------------
+         *   Calcula un percentil p (0-100) de una lista ordenada de enteros usando
+         *   interpolación lineal entre los valores contiguos. Si la lista está
+         *   vacía, devuelve 0.
+         * --------------------------------------------------------------------- */
         private static double Percentile(IList<int> sorted, double p)
         {
             if (sorted == null || sorted.Count == 0) return 0;
             var n = sorted.Count;
+
+            // Posición real en la distribución [0, n-1]
             var pos = (p / 100.0) * (n - 1);
+
+            // Índices inferiores y superiores para interpolar
             var lower = (int)System.Math.Floor(pos);
             var upper = (int)System.Math.Ceiling(pos);
+
+            // Si cae exactamente en un índice entero, devolvemos el valor
             if (lower == upper) return sorted[lower];
+
+            // Peso entre lower y upper
             var weight = pos - lower;
+
+            // Interpolación lineal: value = lower*(1-weight) + upper*weight
             return sorted[lower] * (1 - weight) + sorted[upper] * weight;
         }
 
+        /* ---------------------------------------------------------------------
+         *   Acción principal que responde a la ruta del dashboard. Lee filtros
+         *   (checkboxes repetidos y sliders numéricos), aplica los filtros a la
+         *   consulta, calcula KPIs y prepara estructuras tipadas para la vista.
+         * --------------------------------------------------------------------- */
         public IActionResult Index()
         {
-            // Read checkbox filters (supports repeated query params)
+            // Helper local para leer parámetros tipo "checkbox" que pueden repetirse.
+            // Devuelve un arreglo de strings en minúsculas ya recortados; si no existe,
+            // devuelve arreglo vacío. Esto facilita chequear "Length > 0" sin nulls.
             string[] GetSelected(string key) =>
-                Request.Query.TryGetValue(key, out var v) ? v.Select(s => s?.Trim().ToLowerInvariant()).Where(s => !string.IsNullOrEmpty(s)).ToArray()
-                                                          : Array.Empty<string>();
+                Request.Query.TryGetValue(key, out var v) ? v.Select(s => s?.Trim().ToLowerInvariant()).Where(s => !string.IsNullOrEmpty(s)).ToArray() : Array.Empty<string>();
 
+            // Leer checkboxes (valores categóricos)
             var selMarital = GetSelected("marital");
             var selJob = GetSelected("job");
             var selEducation = GetSelected("education");
@@ -46,22 +85,29 @@ namespace BankMarketingDashboard.Controllers
             var selDay = GetSelected("day");
             var selPoutcome = GetSelected("poutcome");
 
-            // Read numeric slider filters (min thresholds). Use InvariantCulture for floats.
+            // Leer sliders numéricos (umbral mínimo). Parse con TryParse para evitar excepciones.
+            // Si no se proporcionan, las variables quedan en 0 (valor por defecto).
             int.TryParse(Request.Query["age_min"].FirstOrDefault(), out var ageMin);
             int.TryParse(Request.Query["duration_min"].FirstOrDefault(), out var durationMin);
             int.TryParse(Request.Query["campaign_min"].FirstOrDefault(), out var campaignMin);
             int.TryParse(Request.Query["pdays_min"].FirstOrDefault(), out var pdaysMin);
             int.TryParse(Request.Query["previous_min"].FirstOrDefault(), out var previousMin);
 
+            // Valores double usan InvariantCulture para aceptar puntos como separador decimal.
             double.TryParse(Request.Query["empvarrate_min"].FirstOrDefault(), NumberStyles.Any, CultureInfo.InvariantCulture, out var empVarRateMin);
             double.TryParse(Request.Query["conspriceidx_min"].FirstOrDefault(), NumberStyles.Any, CultureInfo.InvariantCulture, out var consPriceIdxMin);
             double.TryParse(Request.Query["consconfidx_min"].FirstOrDefault(), NumberStyles.Any, CultureInfo.InvariantCulture, out var consConfIdxMin);
             double.TryParse(Request.Query["euribor3m_min"].FirstOrDefault(), NumberStyles.Any, CultureInfo.InvariantCulture, out var euribor3mMin);
             double.TryParse(Request.Query["nremployed_min"].FirstOrDefault(), NumberStyles.Any, CultureInfo.InvariantCulture, out var nrEmployedMin);
 
-            // Base query (apply all filters combined)
+            // -----------------------------------------------------------------
+            // Base query: empezamos con todos los registros y aplicamos filtros
+            // sobre IQueryable para que la base de datos haga el trabajo pesado.
+            // -----------------------------------------------------------------
             IQueryable<CampaignRecord> data = _context.CampaignData;
 
+            // Filtrado por valores categóricos únicamente cuando el usuario selecciona opciones.
+            // Uso de ToLower para comparar de forma case-insensitive con los valores en sel*.
             if (selMarital.Length > 0) data = data.Where(r => selMarital.Contains((r.Marital ?? "unknown").ToLower()));
             if (selJob.Length > 0) data = data.Where(r => selJob.Contains((r.Job ?? "unknown").ToLower()));
             if (selEducation.Length > 0) data = data.Where(r => selEducation.Contains((r.Education ?? "unknown").ToLower()));
@@ -73,25 +119,31 @@ namespace BankMarketingDashboard.Controllers
             if (selDay.Length > 0) data = data.Where(r => selDay.Contains((r.DayOfWeek ?? "unknown").ToLower()));
             if (selPoutcome.Length > 0) data = data.Where(r => selPoutcome.Contains((r.Poutcome ?? "unknown").ToLower()));
 
-            // Apply numeric sliders if provided (we use "min" thresholds so sliders start at minimum to include all data)
+            // Aplicar umbrales numéricos únicamente si el usuario proporcionó un mínimo
+            // distinto de 0. Esto permite que los sliders empiecen en el mínimo posible.
             if (ageMin > 0) data = data.Where(r => r.Age >= ageMin);
             if (durationMin > 0) data = data.Where(r => r.Duration >= durationMin);
             if (campaignMin > 0) data = data.Where(r => r.Campaign >= campaignMin);
             if (pdaysMin > 0) data = data.Where(r => r.Pdays >= pdaysMin);
             if (previousMin > 0) data = data.Where(r => r.Previous >= previousMin);
+
+            // Para doubles, se comprueba NaN y que no sean 0.0 (valor por defecto)
             if (!double.IsNaN(empVarRateMin) && empVarRateMin != 0.0) data = data.Where(r => r.EmpVarRate >= empVarRateMin);
             if (!double.IsNaN(consPriceIdxMin) && consPriceIdxMin != 0.0) data = data.Where(r => r.ConsPriceIdx >= consPriceIdxMin);
             if (!double.IsNaN(consConfIdxMin) && consConfIdxMin != 0.0) data = data.Where(r => r.ConsConfIdx >= consConfIdxMin);
             if (!double.IsNaN(euribor3mMin) && euribor3mMin != 0.0) data = data.Where(r => r.Euribor3m >= euribor3mMin);
             if (!double.IsNaN(nrEmployedMin) && nrEmployedMin != 0.0) data = data.Where(r => r.NrEmployed >= nrEmployedMin);
 
-            // === KPIs ===
+            // === KPIs básicos ===
+            // Nota: Count() en IQueryable se traduce a COUNT en SQL, eficiente.
             var totalRecords = data.Count();
             var convertedCount = data.Count(r => r.Y == "yes");
             var conversionRate = totalRecords > 0 ? (convertedCount * 100.0 / totalRecords) : 0;
             var avgDuration = data.Any() ? data.Average(r => r.Duration) : 0;
 
-            // === Datos básicos para gráficos (use filtered `data`) ===
+            // === Datos agregados para gráficos ===
+            // Agrupaciones típicas: marital, job, education, contact.
+            // Cada Select crea un ChartPoint { Label, Value } para consumo por la vista.
             var maritalData = data
                 .GroupBy(r => r.Marital)
                 .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
@@ -112,7 +164,7 @@ namespace BankMarketingDashboard.Controllers
                 .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
                 .ToList();
 
-            // 1-3: barras comparativas para default, housing, loan
+            // Comparativas simples para default, housing, loan
             var defaultData = data
                 .GroupBy(r => r.Default)
                 .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
@@ -128,17 +180,18 @@ namespace BankMarketingDashboard.Controllers
                 .Select(g => new ChartPoint { Label = g.Key ?? "Unknown", Value = g.Count() })
                 .ToList();
 
-            // monthConversion
+            // Conversión por mes: se respeta un orden fijo para presentar la serie temporal
             var monthsOrder = new[] { "jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec" };
             var monthConversion = monthsOrder.Select(m =>
             {
+                // Se cuentan totales y conversiones por mes y se calcula tasa redondeada.
                 var total = data.Count(r => r.Month == m);
                 var conv = total > 0 ? data.Count(r => r.Month == m && r.Y == "yes") : 0;
                 var rate = total > 0 ? Math.Round(conv * 100.0 / total, 2) : 0.0;
                 return new ChartPoint { Label = m, Value = rate };
             }).ToList();
 
-            // dayConversion
+            // Conversión por día de la semana (se consideran solo días laborales)
             var daysOrder = new[] { "mon", "tue", "wed", "thu", "fri" };
             var dayConversion = daysOrder.Select(d =>
             {
@@ -148,9 +201,7 @@ namespace BankMarketingDashboard.Controllers
                 return new ChartPoint { Label = d, Value = rate };
             }).ToList();
 
-            // --- typed boxplot, poutcome and campaign data (replace previous anonymous code) ---
-
-            // boxplot (typed)
+            // --- Boxplot: separamos duraciones por resultado (sí/no) y calculamos percentiles ---
             var durationsYes = data.Where(r => r.Y == "yes").Select(r => r.Duration).OrderBy(v => v).ToList();
             var durationsNo = data.Where(r => r.Y != "yes").Select(r => r.Duration).OrderBy(v => v).ToList();
 
@@ -160,12 +211,16 @@ namespace BankMarketingDashboard.Controllers
                 var vals = pair.Values;
                 if (vals == null || vals.Count == 0)
                 {
+                    // Si no hay valores, añadimos un BoxplotPoint vacío con ceros para evitar nulos en la vista.
                     boxplotData.Add(new BoxplotPoint { Label = pair.Label, Min = 0, Q1 = 0, Median = 0, Q3 = 0, Max = 0 });
                     continue;
                 }
 
+                // min/max reales después de ordenar
                 var min = vals.First();
                 var max = vals.Last();
+
+                // percentiles mediante la función Percentile (usa interpolación)
                 var q1 = Percentile(vals, 25);
                 var median = Percentile(vals, 50);
                 var q3 = Percentile(vals, 75);
@@ -173,7 +228,7 @@ namespace BankMarketingDashboard.Controllers
                 boxplotData.Add(new BoxplotPoint
                 {
                     Label = pair.Label,
-                    Min = q1 < min ? min : min, // keep original min/max but you can customize
+                    Min = q1 < min ? min : min, // se deja el min original
                     Q1 = q1,
                     Median = median,
                     Q3 = q3,
@@ -181,7 +236,7 @@ namespace BankMarketingDashboard.Controllers
                 });
             }
 
-            // poutcomeGroups (typed)
+            // Agrupación para 'poutcome' con recuentos de sí/no
             var poutcomeGroups = data
                 .GroupBy(r => r.Poutcome)
                 .Select(g => new PoutcomePoint
@@ -192,7 +247,7 @@ namespace BankMarketingDashboard.Controllers
                 })
                 .ToList();
 
-            // campaignGroups (typed)
+            // Agrupación por número de campaña con tasa de conversión y total
             var campaignGroups = data
                 .GroupBy(r => r.Campaign)
                 .OrderBy(g => g.Key)
@@ -204,7 +259,7 @@ namespace BankMarketingDashboard.Controllers
                 })
                 .ToList();
 
-            // age ranges + conversionByAge
+            // Definición de rangos de edad para representar distribuciones y tasas por grupo
             var ageRanges = new[]
             {
                 new { Min = 17, Max = 30, Label = "17-30" },
@@ -226,7 +281,9 @@ namespace BankMarketingDashboard.Controllers
                 return new ChartPoint { Label = range.Label, Value = value };
             }).ToList();
 
-            // Pass to view
+            // -----------------------------------------------------------------
+            // Pasa los resultados a la vista mediante ViewBag.
+            // -----------------------------------------------------------------
             ViewBag.TotalContacts = totalRecords;
             ViewBag.ConversionRate = Math.Round(conversionRate, 2);
             ViewBag.AvgDuration = Math.Round(avgDuration, 2);
@@ -248,6 +305,7 @@ namespace BankMarketingDashboard.Controllers
             ViewBag.PoutcomeStack = poutcomeGroups;
             ViewBag.CampaignScatter = campaignGroups;
 
+            // Retornamos la vista por defecto del controlador (Index.cshtml).
             return View();
         }
     }

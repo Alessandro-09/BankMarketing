@@ -1,42 +1,55 @@
 <script>
-    // Called by the global filter UI (left sidebar). Returns true on success.
+    /* =========================================================================
+     *   Script pequeño que solicita la partial `TablePartial` con filtros
+     *   y reemplaza el contenido de la tabla en la página sin recargarla.
+     *  ======================================================================== */
+
+    /* ---------------------------------------------------------------------
+     *   Función global invocada por la UI de filtros para cargar la tabla.
+     * --------------------------------------------------------------------- */
     window.applyFilters = async function(qs) {
         try {
+            // Construcción de la URL de la partial (añadir qs si existe)
             const url = '/InteractiveTable/TablePartial' + (qs ? ('?' + qs) : '');
             console.debug('[applyFilters] requesting', { qs, url });
 
+            // Indicamos que es una petición AJAX con este header
             const res = await fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
 
             console.debug('[applyFilters] response status', res.status);
+
+            // Leemos como texto; en algunos errores el body puede fallar al parsear
             const text = await res.text().catch(() => '');
 
-            // Debug: length and a short preview to help diagnose empty responses
+            // Logs breves para ayudar a depurar respuestas vacías
             console.debug('[applyFilters] response text length', text.length);
             if (text && text.length > 0) {
-                // Optional: small preview (first 300 chars) for debugging
+                // Vista previa corta útil en desarrollo
                 console.debug('[applyFilters] response preview', text.slice(0, 300));
             } else {
                 console.warn('[applyFilters] server returned empty body');
             }
 
+            // Si el servidor respondió con error HTTP, reportamos y abortamos
             if (!res.ok) {
                 console.error('[applyFilters] server error', res.status, text || '[no body]');
                 return false;
             }
 
+            // Buscamos el contenedor donde irá la tabla/partial
             const container = document.querySelector('.chart-container');
             if (!container) throw new Error('Table container not found');
 
-            // If response is empty, show a friendly fallback instead of leaving blank
+            // Si no hay contenido útil, mostramos un fallback amigable
             if (!text || !text.trim()) {
                 container.innerHTML = '<div class="no-data p-4 text-center text-muted"><h5>No data returned from server</h5><p>Check DevTools Network tab and server logs.</p></div>';
                 return false;
             }
 
-            // Insert returned partial HTML
+            // Insertamos la partial devuelta por el servidor
             container.innerHTML = text;
 
-            // reinitialize sorting and other behaviours (only when table present)
+            // Si la tabla está presente, reactivamos comportamientos (ordenación, paginado JS, etc.)
             if (document.querySelector('#interactiveTable')) {
                 initTableInteractivity();
             } else {
@@ -46,6 +59,7 @@
             console.debug('[applyFilters] update applied successfully');
             return true;
         } catch (err) {
+            // Error controlado: lo registramos y retornamos false para que el caller lo sepa
             console.error('applyFilters failed', err);
             return false;
         }
