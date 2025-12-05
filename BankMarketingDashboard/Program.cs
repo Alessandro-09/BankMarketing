@@ -2,6 +2,7 @@ using BankMarketingDashboard.Data;
 using BankMarketingDashboard.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,17 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<DataValidationService>();
 
 builder.Services.AddHttpContextAccessor();  // <<< register IHttpContextAccessor
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+});
 
 // Aumentar el tamaño máximo permitido para cargas multipart (ej.: 200 MB).
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
@@ -60,6 +72,7 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -69,5 +82,5 @@ app.MapControllerRoute(
     pattern: "{controller=Dashboard}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-app.MapRazorPages(); 
+app.MapRazorPages();
 app.Run();

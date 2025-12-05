@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
 using BankMarketingDashboard.Data;
 using BankMarketingDashboard.Models;
-using System.Globalization;
-using System.Linq;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BankMarketingDashboard.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;

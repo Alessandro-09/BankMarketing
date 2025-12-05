@@ -11,6 +11,7 @@ namespace BankMarketingDashboard.Data
         }
 
         public DbSet<CampaignRecord> CampaignData { get; set; }
+        public DbSet<AppUser> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

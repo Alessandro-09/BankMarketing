@@ -15,7 +15,43 @@
                 <h4 class="text-white">Dashdark X</h4>
             </div>
 
-            <!-- Menú de navegación -->
+			<ul class="navbar-nav ms-auto">
+				@if (User.Identity?.IsAuthenticated == true)
+				{
+				<li class="nav-item">
+					<span class="nav-link">
+						Logged in as @User.Identity.Name
+					</span>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link"
+					   asp-controller="Account"
+					   asp-action="Logout">
+						Cerrar sesión
+					</a>
+				</li>
+				}
+				else
+				{
+				<li class="nav-item">
+					<a class="nav-link"
+					   asp-controller="Account"
+					   asp-action="Login">
+						Iniciar sesión
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link"
+					   asp-controller="Account"
+					   asp-action="Register">
+						Registrarse
+					</a>
+				</li>
+				}
+			</ul>
+
+
+			<!-- Menú de navegación -->
             <div class="nav-menu">
                 <ul class="nav flex-column">
                     <li class="nav-item">
