@@ -1,0 +1,232 @@
+@model BankMarketingDashboard.Models.PredictionInput
+@{
+    ViewData["Title"] = "Predicción de Aceptación de Campaña";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <p class="text-muted">Ingrese los datos del cliente para predecir la probabilidad de aceptación del producto bancario.</p>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="Predict" method="post" class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Age" class="form-label">Edad</label>
+            <input asp-for="Age" class="form-control" type="number" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Job" class="form-label">Trabajo</label>
+            <select asp-for="Job" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="admin.">Administrativo</option>
+                <option value="blue-collar">Obrero</option>
+                <option value="entrepreneur">Empresario</option>
+                <option value="housemaid">Empleada doméstica</option>
+                <option value="management">Gerencia</option>
+                <option value="retired">Jubilado</option>
+                <option value="self-employed">Autónomo</option>
+                <option value="services">Servicios</option>
+                <option value="student">Estudiante</option>
+                <option value="technician">Técnico</option>
+                <option value="unemployed">Desempleado</option>
+                <option value="unknown">Desconocido</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Marital" class="form-label">Estado Civil</label>
+            <select asp-for="Marital" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="divorced">Divorciado</option>
+                <option value="married">Casado</option>
+                <option value="single">Soltero</option>
+                <option value="unknown">Desconocido</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Education" class="form-label">Educación</label>
+            <select asp-for="Education" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="basic.4y">Básica 4 años</option>
+                <option value="basic.6y">Básica 6 años</option>
+                <option value="basic.9y">Básica 9 años</option>
+                <option value="high.school">Secundaria</option>
+                <option value="illiterate">Analfabeta</option>
+                <option value="professional.course">Curso profesional</option>
+                <option value="university.degree">Universitario</option>
+                <option value="unknown">Desconocido</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Default" class="form-label">¿Crédito en Default?</label>
+            <select asp-for="Default" class="form-select" required>
+                <option value="no">No</option>
+                <option value="yes">Sí</option>
+                <option value="unknown">Desconocido</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Housing" class="form-label">¿Préstamo Hipotecario?</label>
+            <select asp-for="Housing" class="form-select" required>
+                <option value="no">No</option>
+                <option value="yes">Sí</option>
+                <option value="unknown">Desconocido</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Loan" class="form-label">¿Préstamo Personal?</label>
+            <select asp-for="Loan" class="form-select" required>
+                <option value="no">No</option>
+                <option value="yes">Sí</option>
+                <option value="unknown">Desconocido</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Contact" class="form-label">Tipo de Contacto</label>
+            <select asp-for="Contact" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="cellular">Celular</option>
+                <option value="telephone">Teléfono fijo</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Month" class="form-label">Mes de Contacto</label>
+            <select asp-for="Month" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="jan">Enero</option>
+                <option value="feb">Febrero</option>
+                <option value="mar">Marzo</option>
+                <option value="apr">Abril</option>
+                <option value="may">Mayo</option>
+                <option value="jun">Junio</option>
+                <option value="jul">Julio</option>
+                <option value="aug">Agosto</option>
+                <option value="sep">Septiembre</option>
+                <option value="oct">Octubre</option>
+                <option value="nov">Noviembre</option>
+                <option value="dec">Diciembre</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="DayOfWeek" class="form-label">Día de la Semana</label>
+            <select asp-for="DayOfWeek" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="mon">Lunes</option>
+                <option value="tue">Martes</option>
+                <option value="wed">Miércoles</option>
+                <option value="thu">Jueves</option>
+                <option value="fri">Viernes</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Duration" class="form-label">Duración de Llamada (seg)</label>
+            <input asp-for="Duration" class="form-control" type="number" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Campaign" class="form-label">Número de Contactos (campaña)</label>
+            <input asp-for="Campaign" class="form-control" type="number" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Pdays" class="form-label">Días desde último contacto</label>
+            <input asp-for="Pdays" class="form-control" type="number" required />
+            <small class="form-text text-muted">999 si no fue contactado previamente</small>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Previous" class="form-label">Contactos Previos</label>
+            <input asp-for="Previous" class="form-control" type="number" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Poutcome" class="form-label">Resultado de Campaña Anterior</label>
+            <select asp-for="Poutcome" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="failure">Fracaso</option>
+                <option value="nonexistent">No existe</option>
+                <option value="success">Éxito</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="EmpVarRate" class="form-label">Tasa de Variación de Empleo</label>
+            <input asp-for="EmpVarRate" class="form-control" type="number" step="0.1" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="ConsPriceIdx" class="form-label">Índice de Precios al Consumidor</label>
+            <input asp-for="ConsPriceIdx" class="form-control" type="number" step="0.01" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="ConsConfIdx" class="form-label">Índice de Confianza del Consumidor</label>
+            <input asp-for="ConsConfIdx" class="form-control" type="number" step="0.1" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Euribor3m" class="form-label">Euribor 3 meses</label>
+            <input asp-for="Euribor3m" class="form-control" type="number" step="0.001" required />
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="NrEmployed" class="form-label">Número de Empleados</label>
+            <input asp-for="NrEmployed" class="form-control" type="number" step="0.1" required />
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Predecir</button>
+            <button type="reset" class="btn btn-secondary">Limpiar</button>
+        </div>
+    </form>
+
+    @if (ViewBag.Result != null)
+    {
+        var result = (BankMarketingDashboard.Models.PredictionResult)ViewBag.Result;
+        var alertClass = result.Classification == "Alta" ? "alert-success" : 
+                        result.Classification == "Media" ? "alert-warning" : "alert-danger";
+        
+        <div class="mt-4">
+            <div class="@($"alert {alertClass}")" role="alert">
+                <h4 class="alert-heading">Resultado de la Predicción</h4>
+                <hr>
+                <p><strong>Probabilidad de Aceptación:</strong> @result.Probability.ToString("P1")</p>
+                <p><strong>Clasificación:</strong> @result.Classification probabilidad</p>
+                <p class="mb-0">@result.Message</p>
+            </div>
+        </div>
+    }
+
+    <div class="mt-4">
+        <h5>Administración del Modelo</h5>
+        <form asp-action="RetrainModel" method="post" onsubmit="return confirm('¿Está seguro de reentrenar el modelo? Esto puede tomar varios minutos.');">
+            <button type="submit" class="btn btn-warning">Reentrenar Modelo</button>
+            <small class="form-text text-muted d-block mt-2">
+                Use esta opción si ha actualizado los datos en la base de datos y desea incorporarlos al modelo.
+            </small>
+        </form>
+    </div>
+</div>

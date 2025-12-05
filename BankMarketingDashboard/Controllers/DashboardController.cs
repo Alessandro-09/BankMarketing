@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BankMarketingDashboard.Controllers
 {
-    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(Roles = "ejecutivoCuentas")]
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;

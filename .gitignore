@@ -1,0 +1,18 @@
+# Build
+bin/
+obj/
+
+# VS local files
+.vs/
+
+# User-specific
+*.user
+*.suo
+
+# Logs
+*.log
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json

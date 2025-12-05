@@ -16,6 +16,8 @@ builder.Services.AddRazorPages();
 // Registrar el servicio de validación de datos para que los controladores lo reciban vía DI.
 builder.Services.AddScoped<DataValidationService>();
 
+builder.Services.AddSingleton<MLPredictionService>();
+
 builder.Services.AddHttpContextAccessor();  // <<< register IHttpContextAccessor
 
 builder.Services.AddAuthentication(options =>
@@ -41,6 +43,12 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var mlService = scope.ServiceProvider.GetRequiredService<MLPredictionService>();
+    await mlService.InitializeAsync();
+}
 
 // Obtener un logger para los manejadores globales.
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
